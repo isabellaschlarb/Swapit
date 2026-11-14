@@ -41,18 +41,17 @@ Supabase is our backend: it stores users, items, and photos.
 2. Open the file `supabase/migrations/0001_init.sql` from this project, copy **all** of it, paste it in, and click **Run**. You should see "Success. No rows returned".
 3. Click **New query** again. Do the same with `supabase/seed.sql`. This adds Cal Poly and its meetup spots.
 
-### 4. Set up sign-in emails
+### 4. Set up sign-in
 1. Open **Authentication → URL Configuration**.
    - **Site URL:** `http://localhost:3000`
    - Under **Redirect URLs**, click **Add URL** and add `http://localhost:3000/auth/callback`
-2. Open **Authentication → Emails**. On the **Templates** tab, edit **both** the "Magic Link" and the "Confirm signup" templates. Replace the message body with:
-   ```html
-   <h2>Your Swapit sign-in link</h2>
-   <p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">Sign in to Swapit</a></p>
-   ```
-   Click **Save** on each one. *Why?* With this change the link works even if you open it in a different browser or app, like the Gmail app on your phone.
+   (These settings also live in `supabase/config.toml` and can be applied with `npx supabase config push`.)
 
-> ⚠️ **Email limit:** Supabase's built-in email sender only sends a few emails per hour. That's fine for testing, but before demo day set up free custom email: create a free account at https://resend.com, then in Supabase go to **Authentication → Emails → SMTP Settings** and enter Resend's SMTP details.
+> 📱 **Open the sign-in link in the same browser you requested it from.** With Supabase's default email, the link only works there. If you request it in Chrome and open it in the Gmail app's built-in browser, you'll see "That sign-in link didn't work".
+
+> ⚠️ **Email limit:** Supabase's built-in email sender only sends about 2 emails per hour. Before demo day, set up custom email: create a free account at https://resend.com (it needs a domain you own), then in Supabase go to **Authentication → Emails → SMTP Settings** and enter Resend's SMTP details.
+>
+> Custom SMTP also unlocks our nicer sign-in emails, which work in *any* browser. The free plan blocks custom email templates without it. Once SMTP is set up, uncomment the two `[auth.email.template...]` sections in `supabase/config.toml` and run `npx supabase config push`. The email text is in `supabase/templates/`.
 
 ### 5. Connect the app to Supabase
 1. In Supabase, open **Project Settings → API** (it may be called **API Keys**). You need the **Project URL** and the **anon public** key.
