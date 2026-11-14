@@ -5,7 +5,7 @@ SwapIt is a campus-exclusive clothing swap app for college students. Verify with
 
 ## What's built so far
 
-- **Sign in with your school email.** No passwords: we email you a link. Only emails from schools in our database get in (starting with Cal Poly, `calpoly.edu`).
+- **Sign in with your school email.** No passwords: we email you a 6-digit code to type in. Only emails from schools in our database get in (starting with Cal Poly, `calpoly.edu`).
 - **Onboarding.** Pick a display name and a few style tags.
 - **Feed.** Items posted by students at *your* school only.
 - **Post.** Upload up to 4 photos and list an item as *swap only*, *sell only*, or *swap or sell* (with an asking price).
@@ -49,7 +49,7 @@ Supabase is our backend: it stores users, items, and photos.
 
 > 📧 **Sign-in emails** are sent from `swapit.app.team@gmail.com` through Gmail (up to 100 per hour). The Gmail App Password lives in `supabase/.env` as `SUPABASE_AUTH_SMTP_PASS`. That file is gitignored, so ask Jasper for it, and never commit it or paste it in chat. The email text is in `supabase/templates/`. After changing it, run `npx supabase config push`.
 >
-> The email link opens `/auth/confirm`, which has a **Tap to sign in** button. This is on purpose: school email systems (like Cal Poly's Microsoft 365) open links to scan them, and if opening the page signed you in, the scanner would use up the one-time link.
+> **Why a code and not a link:** on iPhone, the home-screen app doesn't share logins with Safari, so a link would sign you in in the wrong place. A code signs you in wherever you type it. The email also has a backup link to `/auth/confirm`, which has a **Tap to sign in** button. That's on purpose too: school email systems (like Cal Poly's Microsoft 365) open links to scan them, and if just opening the page signed you in, the scanner would use up the link.
 
 ### 5. Connect the app to Supabase
 1. In Supabase, open **Project Settings → API** (it may be called **API Keys**). You need the **Project URL** and the **anon public** key.
@@ -108,7 +108,7 @@ Students at that school can sign in right away and will only see their own campu
 app/                     Pages. Each folder = a URL.
   page.tsx               Landing page  (/)
   login/                 Sign-in page  (/login) + the code that sends the email
-  auth/confirm/          Where the email link lands; "Tap to sign in" button
+  auth/confirm/          Where the backup email link lands; "Tap to sign in" button
   auth/callback/         Old link address, kept for emails sent before the switch
   onboarding/            Name + style tags (first sign-in only)
   (app)/                 Pages with the bottom tab bar ("(app)" isn't in the URL)

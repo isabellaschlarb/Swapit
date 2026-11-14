@@ -18,7 +18,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           <div className="space-y-2">
             <h1 className="text-3xl font-extrabold tracking-tight text-navy">Sign in</h1>
             <p className="text-ink/70">
-              Use your school email. We&apos;ll send you a link, no password needed.
+              Use your school email. We&apos;ll email you a 6-digit code, no password needed.
             </p>
           </div>
         </div>
@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         {error && (
           <p className="rounded-2xl bg-pale p-4 text-sm">
             That sign-in link didn&apos;t work. Each link works once and expires after an hour.
-            Request a new one below.
+            Ask for a new code below.
           </p>
         )}
 

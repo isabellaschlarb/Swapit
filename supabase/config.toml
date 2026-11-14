@@ -240,7 +240,7 @@ secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1m0s"
 # Number of characters used in the email OTP.
-otp_length = 8
+otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
@@ -258,15 +258,17 @@ admin_email = "swapit.app.team@gmail.com"
 sender_name = "Swapit"
 
 # Our own sign-in emails (they need the custom SMTP sender above; the free plan
-# blocks custom templates without it). The link goes to /auth/confirm with a
-# token_hash, so it works in any browser/app (e.g. the Outlook or Gmail app),
-# and it waits for a button tap, so school email virus scanners can't use it up.
+# blocks custom templates without it). The main thing in the email is a 6-digit
+# code ({{ .Token }}) that students type into the login page. That way it works
+# inside the iPhone home-screen app, which doesn't share logins with Safari.
+# There's also a backup link to /auth/confirm, which waits for a button tap so
+# school email virus scanners can't use it up.
 [auth.email.template.magic_link]
-subject = "Your Swapit sign-in link"
+subject = "Your Swapit code: {{ .Token }}"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.confirmation]
-subject = "Confirm your Swapit email"
+subject = "Your Swapit code: {{ .Token }}"
 content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template
