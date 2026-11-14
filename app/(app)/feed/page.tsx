@@ -1,4 +1,5 @@
 import { FeedHeader, type FeedTab } from "@/components/FeedHeader";
+import { InstallBanner } from "@/components/InstallBanner";
 import { ItemGrid, type ItemOwner } from "@/components/ItemCard";
 import { createClient } from "@/lib/supabase/server";
 import type { Item } from "@/lib/types";
@@ -42,7 +43,8 @@ export default async function FeedPage({ searchParams }: PageProps<"/feed">) {
   return (
     <main>
       <FeedHeader active={active} />
-      <section className="px-5">
+      <section className="space-y-4 px-5">
+        <InstallBanner />
         <ItemGrid
           items={(items ?? []) as (Item & { owner: ItemOwner | null })[]}
           emptyText="Nothing posted yet. Be the first, tap +!"

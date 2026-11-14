@@ -7,7 +7,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { error } = await searchParams;
 
   return (
-    <main className="relative flex flex-1 flex-col px-6 pb-10 pt-16">
+    <main className="relative flex flex-1 flex-col px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-16">
       <Blobs />
 
       <div className="relative flex flex-1 flex-col justify-center gap-8">

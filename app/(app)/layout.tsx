@@ -13,8 +13,8 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   return (
     <>
-      {/* Bottom padding so content never hides behind the tab bar */}
-      <div className="flex-1 pb-28">{children}</div>
+      {/* Bottom padding so content never hides behind the tab bar (+ the iPhone home bar) */}
+      <div className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom))]">{children}</div>
       <TabBar />
     </>
   );
