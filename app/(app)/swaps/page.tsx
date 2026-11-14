@@ -56,13 +56,13 @@ export default async function SwapsPage({ searchParams }: PageProps<"/swaps">) {
       <nav className="mx-5 mb-5 grid grid-cols-2 rounded-full bg-surface p-1 text-sm">
         <Link
           href="/swaps"
-          className={`rounded-full py-2 text-center ${!showSent ? "bg-primary text-cream" : "text-ink/60"}`}
+          className={`rounded-full py-2 text-center ${!showSent ? "bg-navy text-white" : "text-ink/60"}`}
         >
           Incoming{waiting > 0 && ` (${waiting})`}
         </Link>
         <Link
           href="/swaps?tab=sent"
-          className={`rounded-full py-2 text-center ${showSent ? "bg-primary text-cream" : "text-ink/60"}`}
+          className={`rounded-full py-2 text-center ${showSent ? "bg-navy text-white" : "text-ink/60"}`}
         >
           Sent
         </Link>
@@ -70,7 +70,7 @@ export default async function SwapsPage({ searchParams }: PageProps<"/swaps">) {
 
       <div className="px-5">
         {shown.length === 0 ? (
-          <p className="rounded-2xl bg-surface p-6 text-center text-ink/60">
+          <p className="rounded-2xl bg-surface shadow-soft p-6 text-center text-ink/60">
             {showSent
               ? "You haven't requested anything yet. Find something in the Feed!"
               : "No requests for your items yet."}
@@ -124,12 +124,12 @@ function SwapCard({
   }
 
   return (
-    <li className="space-y-3 rounded-3xl bg-surface p-4">
+    <li className="space-y-3 rounded-2xl bg-surface shadow-soft p-4">
       {/* The item being requested */}
       <div className="flex items-center gap-3">
         <Link
           href={swap.item ? `/item/${swap.item.id}` : "#"}
-          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-accent/30"
+          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-pale"
         >
           {swap.item?.photo_urls[0] && (
             <Image src={swap.item.photo_urls[0]} alt="" fill sizes="56px" className="object-cover" />
@@ -143,7 +143,7 @@ function SwapCard({
         </div>
         <span
           className={`rounded-full px-3 py-1 text-xs ${
-            swap.status === "accepted" ? "bg-primary text-cream" : "bg-accent/50"
+            swap.status === "accepted" ? "bg-navy text-white" : "bg-pale"
           }`}
         >
           {swap.status}
@@ -170,7 +170,7 @@ function SwapCard({
       </div>
 
       {isOpen && swap.cash_amount_cents > 0 && (
-        <p className="rounded-2xl bg-accent/40 px-3 py-2 text-sm">
+        <p className="rounded-2xl bg-pale px-3 py-2 text-sm">
           <span className="font-medium">Pay at meetup:</span>{" "}
           {youPay ? "you pay" : "they pay"} {formatCents(swap.cash_amount_cents)} in cash or Venmo.
         </p>

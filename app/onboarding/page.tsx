@@ -19,7 +19,7 @@ export default async function OnboardingPage() {
   return (
     <main className="flex flex-1 flex-col gap-8 px-6 py-16">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-primary">Welcome to Swapit</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-navy">Welcome to Swapit</h1>
         <p className="text-ink/70">Two quick things and you&apos;re in.</p>
       </div>
       <OnboardingForm />

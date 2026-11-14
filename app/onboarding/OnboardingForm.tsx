@@ -18,7 +18,7 @@ export function OnboardingForm() {
           minLength={2}
           maxLength={40}
           placeholder="First name or nickname"
-          className="w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-primary"
+          className="w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-sky"
         />
       </label>
 
@@ -27,7 +27,7 @@ export function OnboardingForm() {
         <StyleTagPicker />
       </div>
 
-      {state.error && <p className="rounded-2xl bg-accent/40 p-4 text-sm">{state.error}</p>}
+      {state.error && <p className="rounded-2xl bg-pale p-4 text-sm">{state.error}</p>}
 
       <SubmitButton pendingText="Saving…">Start swapping</SubmitButton>
     </form>

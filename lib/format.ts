@@ -18,12 +18,18 @@ export function dollarsToCents(input: string) {
 }
 
 // Short label for how an item can be traded:
-//   swap only → "Swap"   sell only → "$20"   swap or sell → "$20 · or swap"
+//   swap only → "Swap only"   sell only → "$35"   swap or sell → "Swap or $35"
 export function listingLabel(item: Pick<Item, "listing_type" | "price_cents">) {
   const price = item.price_cents ? formatCents(item.price_cents) : "";
   if (item.listing_type === "sell") return price;
-  if (item.listing_type === "swap_or_sell") return `${price} · or swap`;
-  return "Swap";
+  if (item.listing_type === "swap_or_sell") return `Swap or ${price}`;
+  return "Swap only";
+}
+
+// "M" → "Size M", but "One size" stays "One size".
+export function sizeLabel(size: string | null) {
+  if (!size) return null;
+  return size === "One size" ? size : `Size ${size}`;
 }
 
 // Meetup time in the school's timezone, e.g. "Sat, Nov 15 · 3:00 PM".

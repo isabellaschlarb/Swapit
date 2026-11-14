@@ -14,7 +14,7 @@ export function StyleTagPicker({ selected = [] }: { selected?: string[] }) {
             defaultChecked={selected.includes(tag)}
             className="peer sr-only"
           />
-          <span className="block rounded-full border border-ink/15 px-4 py-2 text-sm peer-checked:border-accent peer-checked:bg-accent peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+          <span className="block rounded-full border border-ink/15 px-4 py-2 text-sm peer-checked:border-sky peer-checked:bg-pale peer-focus-visible:ring-2 peer-focus-visible:ring-sky">
             {tag}
           </span>
         </label>
