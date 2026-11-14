@@ -1,3 +1,5 @@
+import type { Item } from "@/lib/types";
+
 // 2000 → "$20". 2050 → "$20.50". Money is stored in cents to avoid rounding bugs.
 export function formatCents(cents: number) {
   const dollars = cents / 100;
@@ -13,4 +15,23 @@ export function dollarsToCents(input: string) {
   const value = Number.parseFloat(input);
   if (!Number.isFinite(value) || value < 0) return 0;
   return Math.round(value * 100);
+}
+
+// Short label for how an item can be traded:
+//   swap only → "Swap"   sell only → "$20"   swap or sell → "$20 · or swap"
+export function listingLabel(item: Pick<Item, "listing_type" | "price_cents">) {
+  const price = item.price_cents ? formatCents(item.price_cents) : "";
+  if (item.listing_type === "sell") return price;
+  if (item.listing_type === "swap_or_sell") return `${price} · or swap`;
+  return "Swap";
+}
+
+// Meetup time in the school's timezone, e.g. "Sat, Nov 15 · 3:00 PM".
+// (Pages render on the server, which may be in another timezone, so we
+// always pass the campus timezone explicitly.)
+export function formatMeetupTime(iso: string, timeZone: string) {
+  const date = new Date(iso);
+  const day = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone });
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone });
+  return `${day} · ${time}`;
 }

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatCents } from "@/lib/format";
+import { listingLabel } from "@/lib/format";
 import type { Item } from "@/lib/types";
 
 // One tile in an item grid: photo, title, size, and value.
@@ -28,7 +28,7 @@ export function ItemCard({ item }: { item: Item }) {
       <div className="px-1">
         <p className="truncate text-sm font-medium">{item.title}</p>
         <p className="text-xs text-ink/60">
-          {[item.size, formatCents(item.estimated_value_cents)].filter(Boolean).join(" · ")}
+          {[item.size, listingLabel(item)].filter(Boolean).join(" · ")}
         </p>
       </div>
     </Link>

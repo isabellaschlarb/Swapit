@@ -2,6 +2,9 @@
 
 export type ItemStatus = "available" | "pending" | "swapped" | "sold";
 
+// How the owner wants to trade it: swap only, sell only, or either.
+export type ListingType = "swap" | "sell" | "swap_or_sell";
+
 export type Profile = {
   id: string;
   school_id: string;
@@ -24,6 +27,8 @@ export type Item = {
   estimated_value_cents: number;
   style_tags: string[];
   photo_urls: string[];
+  listing_type: ListingType;
+  price_cents: number | null; // asking price; set when the item can be bought
   status: ItemStatus;
   created_at: string;
 };
@@ -32,6 +37,7 @@ export type SwapStatus = "pending" | "accepted" | "declined" | "completed" | "ca
 
 export type SwapRequest = {
   id: string;
+  kind: "swap" | "buy"; // swap = items (+ optional cash), buy = cash only
   requested_item_id: string;
   requester_id: string;
   owner_id: string;

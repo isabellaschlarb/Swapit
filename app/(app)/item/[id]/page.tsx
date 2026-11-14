@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RequestSwapButton } from "@/components/RequestSwapButton";
 import { formatCents } from "@/lib/format";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import type { Item } from "@/lib/types";
@@ -23,6 +22,8 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
   const { owner, ...item } = data as Item & { owner: { display_name: string | null } | null };
   const isMine = item.owner_id === user?.id;
   const details = [item.category, item.size, item.condition].filter(Boolean);
+  const canSwap = item.listing_type !== "sell";
+  const canBuy = item.listing_type !== "swap";
 
   return (
     <main className="space-y-6">
@@ -45,6 +46,14 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
       <section className="space-y-4 px-5">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
+          {canBuy && item.price_cents ? (
+            <p className="text-lg font-medium text-primary">
+              {formatCents(item.price_cents)}
+              {canSwap && <span className="font-normal text-ink/60"> · or swap</span>}
+            </p>
+          ) : (
+            <p className="text-lg font-medium text-primary">Swap only</p>
+          )}
           <p className="text-ink/60">
             {formatCents(item.estimated_value_cents)} est. value
             {details.length > 0 && ` · ${details.join(" · ")}`}
@@ -71,7 +80,26 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
             This is your item. Status: <span className="font-medium text-ink">{item.status}</span>
           </p>
         ) : item.status === "available" ? (
-          <RequestSwapButton />
+          <div className="space-y-2">
+            {canSwap && (
+              <Link
+                href={`/item/${item.id}/request?type=swap`}
+                className="block rounded-full bg-primary px-6 py-3 text-center font-medium text-cream"
+              >
+                Request swap
+              </Link>
+            )}
+            {canBuy && item.price_cents && (
+              <Link
+                href={`/item/${item.id}/request?type=buy`}
+                className={`block rounded-full px-6 py-3 text-center font-medium ${
+                  canSwap ? "border border-primary text-primary" : "bg-primary text-cream"
+                }`}
+              >
+                Buy for {formatCents(item.price_cents)}
+              </Link>
+            )}
+          </div>
         ) : (
           <p className="rounded-2xl bg-surface p-4 text-sm text-ink/70">
             This item is {item.status}, so it can&apos;t be requested right now.

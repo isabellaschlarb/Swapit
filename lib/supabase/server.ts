@@ -41,8 +41,8 @@ export const getCurrentUser = cache(async () => {
   return data.user;
 });
 
-// Returns the signed-in user's profile plus their school's name,
-// or null if nobody is signed in.
+// Returns the signed-in user's profile plus their school's name and
+// timezone, or null if nobody is signed in.
 export const getMyProfile = cache(async () => {
   const user = await getCurrentUser();
   if (!user) return null;
@@ -50,11 +50,17 @@ export const getMyProfile = cache(async () => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("*, school:schools(name)")
+    .select("*, school:schools(name, timezone)")
     .eq("id", user.id)
     .single();
   if (!data) return null;
 
-  const { school, ...profile } = data as Profile & { school: { name: string } | null };
-  return { ...profile, schoolName: school?.name ?? "" };
+  const { school, ...profile } = data as Profile & {
+    school: { name: string; timezone: string } | null;
+  };
+  return {
+    ...profile,
+    schoolName: school?.name ?? "",
+    schoolTimezone: school?.timezone ?? "America/Los_Angeles",
+  };
 });

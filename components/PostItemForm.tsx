@@ -3,10 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { StyleTagPicker } from "@/components/StyleTagPicker";
-import { CATEGORIES, CONDITIONS, MAX_PHOTOS, PHOTO_BUCKET, SIZES } from "@/lib/constants";
+import {
+  CATEGORIES,
+  CONDITIONS,
+  LISTING_TYPES,
+  MAX_PHOTOS,
+  PHOTO_BUCKET,
+  SIZES,
+} from "@/lib/constants";
 import { dollarsToCents } from "@/lib/format";
 import { randomFileName, shrinkImage } from "@/lib/images";
 import { createClient } from "@/lib/supabase/client";
+import type { ListingType } from "@/lib/types";
 
 type Photo = { file: File; preview: string };
 
@@ -22,6 +30,8 @@ export function PostItemForm({ userId }: { userId: string }) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [listingType, setListingType] = useState<ListingType>("swap");
+  const canSell = listingType !== "swap";
 
   function addPhotos(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -44,6 +54,8 @@ export function PostItemForm({ userId }: { userId: string }) {
     const title = String(form.get("title") ?? "").trim();
     if (!title) return setError("Give your item a title.");
     if (photos.length === 0) return setError("Add at least one photo.");
+    const priceCents = canSell ? dollarsToCents(String(form.get("price") ?? "")) : null;
+    if (canSell && !priceCents) return setError("Add an asking price.");
 
     setSaving(true);
     const supabase = createClient();
@@ -74,6 +86,8 @@ export function PostItemForm({ userId }: { userId: string }) {
           estimated_value_cents: dollarsToCents(String(form.get("value") ?? "")),
           style_tags: form.getAll("style_tags").map(String),
           photo_urls: photoUrls,
+          listing_type: listingType,
+          price_cents: priceCents,
         })
         .select("id")
         .single();
@@ -134,6 +148,44 @@ export function PostItemForm({ userId }: { userId: string }) {
         <span className="text-sm text-ink/70">Description</span>
         <textarea name="description" rows={3} placeholder="Fit, flaws, why you love it…" className={inputClass} />
       </label>
+
+      {/* How the owner wants to trade it */}
+      <div className="space-y-2">
+        <p className="text-sm text-ink/70">How do you want to trade it?</p>
+        <div className="grid grid-cols-3 gap-2">
+          {LISTING_TYPES.map((type) => (
+            <label key={type.value} className="cursor-pointer">
+              <input
+                type="radio"
+                name="listing_type"
+                value={type.value}
+                checked={listingType === type.value}
+                onChange={() => setListingType(type.value)}
+                className="peer sr-only"
+              />
+              <span className="block rounded-full border border-ink/15 px-2 py-2 text-center text-sm peer-checked:border-primary peer-checked:bg-primary peer-checked:text-cream peer-focus-visible:ring-2 peer-focus-visible:ring-accent">
+                {type.label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {canSell && (
+        <label className="block space-y-2">
+          <span className="text-sm text-ink/70">Asking price ($)</span>
+          <input
+            name="price"
+            type="number"
+            inputMode="decimal"
+            min="1"
+            step="1"
+            required
+            placeholder="20"
+            className={inputClass}
+          />
+        </label>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <label className="block space-y-2">

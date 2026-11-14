@@ -1,65 +1,186 @@
+import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
-import { formatCents } from "@/lib/format";
-import { createClient, getCurrentUser } from "@/lib/supabase/server";
-import type { SwapRequest } from "@/lib/types";
+import { formatCents, formatMeetupTime } from "@/lib/format";
+import { createClient, getMyProfile } from "@/lib/supabase/server";
+import type { Item, SwapRequest } from "@/lib/types";
+import { SwapActions, type SwapAction } from "./SwapActions";
 
-type SwapRow = SwapRequest & { item: { id: string; title: string } | null };
+type SwapRow = SwapRequest & {
+  item: Pick<Item, "id" | "title" | "photo_urls" | "status"> | null;
+  spot: { name: string } | null;
+  requester: { display_name: string | null } | null;
+  owner: { display_name: string | null } | null;
+};
 
-// Lists swaps I'm part of. RLS only returns swaps where I'm the requester
-// or the owner, so no extra filtering is needed.
-// STUB: no accept/decline/chat yet — that's the next feature.
-export default async function SwapsPage() {
+// Lists swaps I'm part of, in two tabs:
+//   Incoming = requests for MY items · Sent = requests I made
+// RLS only returns swaps where I'm the requester or owner.
+export default async function SwapsPage({ searchParams }: PageProps<"/swaps">) {
+  const { tab } = await searchParams;
+  const showSent = tab === "sent";
+  const profile = await getMyProfile();
+  if (!profile) redirect("/login");
+
   const supabase = await createClient();
-  const user = await getCurrentUser();
-
   const { data } = await supabase
     .from("swap_requests")
-    .select("*, item:items(id, title)")
+    .select(
+      `*,
+       item:items(id, title, photo_urls, status),
+       spot:meetup_spots(name),
+       requester:profiles!swap_requests_requester_id_fkey(display_name),
+       owner:profiles!swap_requests_owner_id_fkey(display_name)`,
+    )
     .order("created_at", { ascending: false });
-
   const swaps = (data ?? []) as SwapRow[];
-  const incoming = swaps.filter((s) => s.owner_id === user?.id);
-  const outgoing = swaps.filter((s) => s.requester_id === user?.id);
+
+  // Look up the titles of every offered item in one go.
+  const offeredIds = [...new Set(swaps.flatMap((s) => s.offered_item_ids))];
+  const { data: offered } = offeredIds.length
+    ? await supabase.from("items").select("id, title").in("id", offeredIds)
+    : { data: [] };
+  const titles = new Map((offered ?? []).map((i) => [i.id, i.title as string]));
+
+  const incoming = swaps.filter((s) => s.owner_id === profile.id);
+  const sent = swaps.filter((s) => s.requester_id === profile.id);
+  const shown = showSent ? sent : incoming;
+  const waiting = incoming.filter((s) => s.status === "pending").length;
 
   return (
     <main>
       <PageHeader title="Swaps" />
-      <div className="space-y-8 px-5">
-        <SwapList title="Requests for your items" swaps={incoming} empty="No one has asked yet." />
-        <SwapList title="Your requests" swaps={outgoing} empty="You haven't requested any swaps yet." />
+
+      {/* Tabs */}
+      <nav className="mx-5 mb-5 grid grid-cols-2 rounded-full bg-surface p-1 text-sm">
+        <Link
+          href="/swaps"
+          className={`rounded-full py-2 text-center ${!showSent ? "bg-primary text-cream" : "text-ink/60"}`}
+        >
+          Incoming{waiting > 0 && ` (${waiting})`}
+        </Link>
+        <Link
+          href="/swaps?tab=sent"
+          className={`rounded-full py-2 text-center ${showSent ? "bg-primary text-cream" : "text-ink/60"}`}
+        >
+          Sent
+        </Link>
+      </nav>
+
+      <div className="px-5">
+        {shown.length === 0 ? (
+          <p className="rounded-2xl bg-surface p-6 text-center text-ink/60">
+            {showSent
+              ? "You haven't requested anything yet. Find something in the Feed!"
+              : "No requests for your items yet."}
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {shown.map((swap) => (
+              <SwapCard
+                key={swap.id}
+                swap={swap}
+                isOwner={swap.owner_id === profile.id}
+                titles={titles}
+                timeZone={profile.schoolTimezone}
+              />
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );
 }
 
-function SwapList({ title, swaps, empty }: { title: string; swaps: SwapRow[]; empty: string }) {
+function SwapCard({
+  swap,
+  isOwner,
+  titles,
+  timeZone,
+}: {
+  swap: SwapRow;
+  isOwner: boolean;
+  titles: Map<string, string>;
+  timeZone: string;
+}) {
+  const otherName = (isOwner ? swap.requester : swap.owner)?.display_name ?? "a student";
+  const offeredTitles = swap.offered_item_ids.map((id) => titles.get(id) ?? "an item");
+  const youPay =
+    (isOwner && swap.cash_paid_by === "owner") || (!isOwner && swap.cash_paid_by === "requester");
+  const isOpen = swap.status === "pending" || swap.status === "accepted";
+  const itemOnHoldElsewhere = swap.status === "pending" && swap.item?.status !== "available";
+
+  // Which buttons to show. (The database enforces these rules too.)
+  const actions: SwapAction[] = [];
+  if (swap.status === "pending" && isOwner) {
+    actions.push({ status: "accepted", label: "Accept", primary: true });
+    actions.push({ status: "declined", label: "Decline" });
+  } else if (swap.status === "pending") {
+    actions.push({ status: "cancelled", label: "Cancel request" });
+  } else if (swap.status === "accepted") {
+    actions.push({ status: "completed", label: "Mark complete", primary: true });
+    actions.push({ status: "cancelled", label: "Cancel" });
+  }
+
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-medium text-ink/60">{title}</h2>
-      {swaps.length === 0 ? (
-        <p className="rounded-2xl bg-surface p-6 text-center text-ink/60">{empty}</p>
-      ) : (
-        <ul className="space-y-2">
-          {swaps.map((swap) => (
-            <li key={swap.id}>
-              <Link
-                href={swap.item ? `/item/${swap.item.id}` : "#"}
-                className="flex items-center justify-between rounded-2xl bg-surface p-4"
-              >
-                <div>
-                  <p className="font-medium">{swap.item?.title ?? "Item removed"}</p>
-                  <p className="text-sm text-ink/60">
-                    {swap.offered_item_ids.length} item(s) offered
-                    {swap.cash_amount_cents > 0 && ` + ${formatCents(swap.cash_amount_cents)}`}
-                  </p>
-                </div>
-                <span className="rounded-full bg-accent/50 px-3 py-1 text-xs">{swap.status}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <li className="space-y-3 rounded-3xl bg-surface p-4">
+      {/* The item being requested */}
+      <div className="flex items-center gap-3">
+        <Link
+          href={swap.item ? `/item/${swap.item.id}` : "#"}
+          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-accent/30"
+        >
+          {swap.item?.photo_urls[0] && (
+            <Image src={swap.item.photo_urls[0]} alt="" fill sizes="56px" className="object-cover" />
+          )}
+        </Link>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{swap.item?.title ?? "Item removed"}</p>
+          <p className="text-sm text-ink/60">
+            {isOwner ? `From ${otherName}` : `To ${otherName}`}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs ${
+            swap.status === "accepted" ? "bg-primary text-cream" : "bg-accent/50"
+          }`}
+        >
+          {swap.status}
+        </span>
+      </div>
+
+      {/* What's being offered */}
+      <div className="space-y-1 text-sm">
+        {swap.kind === "buy" ? (
+          <p>
+            <span className="text-ink/60">Buy offer:</span> {formatCents(swap.cash_amount_cents)}
+          </p>
+        ) : (
+          <p>
+            <span className="text-ink/60">Offering:</span> {offeredTitles.join(", ")}
+            {swap.cash_amount_cents > 0 &&
+              ` + ${formatCents(swap.cash_amount_cents)} (${youPay ? "you pay" : "they pay"})`}
+          </p>
+        )}
+        <p>
+          <span className="text-ink/60">Meetup:</span> {swap.spot?.name ?? "No spot"}
+          {swap.meetup_time && ` · ${formatMeetupTime(swap.meetup_time, timeZone)}`}
+        </p>
+      </div>
+
+      {isOpen && swap.cash_amount_cents > 0 && (
+        <p className="rounded-2xl bg-accent/40 px-3 py-2 text-sm">
+          <span className="font-medium">Pay at meetup:</span>{" "}
+          {youPay ? "you pay" : "they pay"} {formatCents(swap.cash_amount_cents)} in cash or Venmo.
+        </p>
       )}
-    </section>
+
+      {itemOnHoldElsewhere && (
+        <p className="text-sm text-ink/60">This item is on hold in another swap right now.</p>
+      )}
+
+      <SwapActions swapId={swap.id} actions={actions} />
+    </li>
   );
 }

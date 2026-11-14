@@ -8,9 +8,11 @@ SwapIt is a campus-exclusive clothing swap app for college students. Verify with
 - **Sign in with your school email.** No passwords: we email you a link. Only emails from schools in our database get in (starting with Cal Poly, `calpoly.edu`).
 - **Onboarding.** Pick a display name and a few style tags.
 - **Feed.** Items posted by students at *your* school only.
-- **Post.** Upload up to 4 photos and list an item (fully working).
-- **Item page.** Photos and details. The "Request swap" button is a placeholder.
-- **Swaps.** Lists your swap requests (placeholder, nothing creates them yet).
+- **Post.** Upload up to 4 photos and list an item as *swap only*, *sell only*, or *swap or sell* (with an asking price).
+- **Item page.** Photos, details, and **Request swap** / **Buy for $X** buttons depending on how it's listed.
+- **Requests.** Swap: offer one or more of your items, plus an optional cash difference (and who pays it). Buy: offer an amount. Both pick a campus meetup spot and time.
+- **Swaps.** Incoming and Sent tabs. Owners **Accept** or **Decline**, either person can **Cancel**, and after meeting up, **Mark complete**. Accepting puts every item in the swap on hold. Completing marks them swapped (or sold).
+- **Payments happen in person** (cash or Venmo at the meetup). Swapit doesn't handle money.
 - **Profile.** Your info, style tags, your items, and sign out.
 
 Tech: Next.js 16 + TypeScript + Tailwind CSS, with Supabase for login, database, and photo storage.
@@ -123,6 +125,15 @@ supabase/
 
 ### Security in one paragraph
 The database itself enforces the rules (Supabase calls this Row Level Security). Even if someone tampers with the app, they can only see profiles, items, and meetup spots from **their own school**. They can only edit **their own** profile and items, and only the two people in a swap can see it and its messages. Photos are stored in folders named after each user, and you can only upload to your own folder.
+
+### Swap rules (enforced by the database)
+The important rules live in `supabase/migrations/0003_swap_flow.sql`, so they hold even if the app has a bug. You can't request your own item, you can only offer your own *available* items, only the owner can accept or decline, and item statuses (available → pending → swapped/sold) only change through the swap flow.
+
+To check the rules still work after a change, run:
+```
+npx supabase db query --remote --yes -f supabase/tests/swap_rules_test.sql -o table
+```
+It tests about 50 cases as fake users and then **undoes everything**, so it's safe to run on the real database. Every line should say PASS.
 
 ### Design tokens
 Use these Tailwind classes instead of picking colors (defined in `app/globals.css`):

@@ -25,5 +25,11 @@ export const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "One size"] as const;
 
 export const CONDITIONS = ["New with tags", "Like new", "Good", "Fair"] as const;
 
+export const LISTING_TYPES = [
+  { value: "swap", label: "Swap only" },
+  { value: "swap_or_sell", label: "Swap or sell" },
+  { value: "sell", label: "Sell only" },
+] as const;
+
 export const PHOTO_BUCKET = "item-photos";
 export const MAX_PHOTOS = 4;
