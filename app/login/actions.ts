@@ -33,11 +33,12 @@ export async function sendMagicLink(
     return { status: "no-school" };
   }
 
-  // 2. Send the magic link. Clicking it opens /auth/callback on this site.
+  // 2. Send the magic link. It opens /auth/confirm on this site, where the
+  //    student taps "Tap to sign in" (see app/auth/confirm/page.tsx for why).
   const origin = (await headers()).get("origin");
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/callback` },
+    options: { emailRedirectTo: `${origin}/auth/confirm` },
   });
 
   if (error) {

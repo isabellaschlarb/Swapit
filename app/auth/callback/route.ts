@@ -1,9 +1,10 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, pathAfterSignIn } from "@/lib/supabase/server";
 
-// The magic link in the email points here. We trade the link's one-time
-// token for a login session, then send the user on to the right page.
+// OLD sign-in link address, kept so emails sent before the switch still work.
+// New emails link to /auth/confirm instead, which waits for a button tap so
+// email virus scanners can't use up the link first. Don't point new links here.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const supabase = await createClient();
@@ -32,13 +33,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=link`);
   }
 
-  // First time here? (No display name yet) → onboarding. Otherwise → feed.
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", user.id)
-    .single();
-
-  const next = profile?.display_name ? "/feed" : "/onboarding";
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(`${origin}${await pathAfterSignIn(supabase, user.id)}`);
 }
