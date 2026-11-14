@@ -27,7 +27,7 @@ Jasper built the base app. Your job is the smart stuff (style matching, auto-tag
 **Things to know:**
 - The swap/buy screens were built and checked automatically (the database rules pass all 49 tests), but nobody has clicked through them with two real accounts yet. Please try it with a teammate and tell Jasper if anything looks off.
 - Supabase's free email only sends about **2 sign-in emails per hour**. If sign-in emails stop arriving, that's why. Wait, or ask Jasper about setting up Resend.
-- **Open the sign-in link in the same browser you asked for it in** (e.g. request it in Chrome, open the email in Chrome). Opening it in a different browser or app gives "That sign-in link didn't work".
+- **Sign-in links work in any browser or email app.** They open `/auth/confirm`, and you tap **Tap to sign in** (on purpose, so school email scanners can't use up the link). Emails come from `swapit.app.team@gmail.com`, up to 100 per hour.
 - Nicer sign-in emails that work in any browser are ready in `supabase/templates/`, but Supabase's free plan only allows them once custom email (SMTP, e.g. Resend) is set up. The README explains how. Ask Jasper before running `npx supabase config push`.
 
 ---

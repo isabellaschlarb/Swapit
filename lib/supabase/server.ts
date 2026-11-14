@@ -33,6 +33,20 @@ export async function createClient() {
   );
 }
 
+// Where to send someone right after they sign in:
+// first time here (no display name yet) → onboarding, otherwise → feed.
+export async function pathAfterSignIn(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", userId)
+    .single();
+  return profile?.display_name ? "/feed" : "/onboarding";
+}
+
 // Returns the signed-in user, or null if nobody is signed in.
 // cache() means: if several parts of the same page ask, we only look it up once.
 export const getCurrentUser = cache(async () => {

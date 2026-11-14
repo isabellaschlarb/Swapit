@@ -25,8 +25,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
         {error && (
           <p className="rounded-2xl bg-pale p-4 text-sm">
-            That sign-in link didn&apos;t work (links expire after a while, and only work in the
-            browser you requested them from). Request a new one below.
+            That sign-in link didn&apos;t work. Each link works once and expires after an hour.
+            Request a new one below.
           </p>
         )}
 
