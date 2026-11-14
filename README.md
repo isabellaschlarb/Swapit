@@ -44,14 +44,12 @@ Supabase is our backend: it stores users, items, and photos.
 ### 4. Set up sign-in
 1. Open **Authentication → URL Configuration**.
    - **Site URL:** `http://localhost:3000`
-   - Under **Redirect URLs**, click **Add URL** and add `http://localhost:3000/auth/callback`
+   - Under **Redirect URLs**, click **Add URL** and add `http://localhost:3000/**`
    (These settings also live in `supabase/config.toml` and can be applied with `npx supabase config push`.)
 
-> 📱 **Open the sign-in link in the same browser you requested it from.** With Supabase's default email, the link only works there. If you request it in Chrome and open it in the Gmail app's built-in browser, you'll see "That sign-in link didn't work".
-
-> ⚠️ **Email limit:** Supabase's built-in email sender only sends about 2 emails per hour. Before demo day, set up custom email: create a free account at https://resend.com (it needs a domain you own), then in Supabase go to **Authentication → Emails → SMTP Settings** and enter Resend's SMTP details.
+> 📧 **Sign-in emails** are sent from `swapit.app.team@gmail.com` through Gmail (up to 100 per hour). The Gmail App Password lives in `supabase/.env` as `SUPABASE_AUTH_SMTP_PASS`. That file is gitignored, so ask Jasper for it, and never commit it or paste it in chat. The email text is in `supabase/templates/`. After changing it, run `npx supabase config push`.
 >
-> Custom SMTP also unlocks our nicer sign-in emails, which work in *any* browser. The free plan blocks custom email templates without it. Once SMTP is set up, uncomment the two `[auth.email.template...]` sections in `supabase/config.toml` and run `npx supabase config push`. The email text is in `supabase/templates/`.
+> The email link opens `/auth/confirm`, which has a **Tap to sign in** button. This is on purpose: school email systems (like Cal Poly's Microsoft 365) open links to scan them, and if opening the page signed you in, the scanner would use up the one-time link.
 
 ### 5. Connect the app to Supabase
 1. In Supabase, open **Project Settings → API** (it may be called **API Keys**). You need the **Project URL** and the **anon public** key.
@@ -83,7 +81,7 @@ Open http://localhost:3000. To see it like a phone, press F12 in Chrome and clic
 4. Click **Deploy**. You'll get a URL like `https://swapit-xyz.vercel.app`.
 5. Back in Supabase, open **Authentication → URL Configuration**:
    - Change **Site URL** to your Vercel URL.
-   - Add `https://swapit-xyz.vercel.app/auth/callback` (your real URL) to **Redirect URLs**. Keep the localhost one so local development still works.
+   - Add `https://swapit-xyz.vercel.app/**` (your real URL) to **Redirect URLs**. Keep the localhost one so local development still works.
 
 Every push to GitHub now redeploys automatically.
 
@@ -110,7 +108,8 @@ Students at that school can sign in right away and will only see their own campu
 app/                     Pages. Each folder = a URL.
   page.tsx               Landing page  (/)
   login/                 Sign-in page  (/login) + the code that sends the email
-  auth/callback/         Where the email link lands; signs the user in
+  auth/confirm/          Where the email link lands; "Tap to sign in" button
+  auth/callback/         Old link address, kept for emails sent before the switch
   onboarding/            Name + style tags (first sign-in only)
   (app)/                 Pages with the bottom tab bar ("(app)" isn't in the URL)
     feed/ post/ item/[id]/ swaps/ profile/
