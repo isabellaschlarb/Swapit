@@ -11,8 +11,8 @@ export function LoginForm() {
 
   if (state.status === "sent") {
     return (
-      <div className="space-y-2 rounded-3xl bg-surface p-6">
-        <h2 className="text-lg font-medium">Check your email</h2>
+      <div className="space-y-2 text-center">
+        <h2 className="text-lg font-bold text-navy">Check your email</h2>
         <p className="text-ink/70">
           We sent a sign-in link to <span className="font-medium text-ink">{state.email}</span>.
           Tap it to continue.
@@ -32,12 +32,12 @@ export function LoginForm() {
           autoComplete="email"
           inputMode="email"
           placeholder="you@school.edu"
-          className="w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-primary"
+          className="w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-sky"
         />
       </label>
 
       {state.status === "no-school" && (
-        <div className="space-y-1 rounded-2xl bg-accent/40 p-4 text-sm">
+        <div className="space-y-1 rounded-2xl bg-pale p-4 text-sm">
           <p className="font-medium">Swapit isn&apos;t at your school yet.</p>
           <p className="text-ink/70">
             We&apos;re starting with a few campuses. Make sure you used your school email, or
@@ -47,7 +47,7 @@ export function LoginForm() {
       )}
 
       {state.status === "error" && (
-        <p className="rounded-2xl bg-accent/40 p-4 text-sm">{state.message}</p>
+        <p className="rounded-2xl bg-pale p-4 text-sm">{state.message}</p>
       )}
 
       <SubmitButton pendingText="Sending…">Email me a sign-in link</SubmitButton>

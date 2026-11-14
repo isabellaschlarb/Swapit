@@ -15,5 +15,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Security rules live in the database (RLS + triggers). Don't weaken them to make app code work; never use the Supabase service_role / secret key in the app.
 - Secrets (AI API keys etc.) go in `.env.local` only, with names that do NOT start with `NEXT_PUBLIC_`, and are used only in server code. Never commit `.env.local`.
 - Money is stored in cents (`2000` = $20). Use helpers in `lib/format.ts`.
-- Use the design tokens in `app/globals.css` (`bg-primary`, `bg-accent`, `bg-cream`, `bg-surface`, `text-ink`); no new colors, no red.
+- Match the brand board (`design/design.webp`). Use the design tokens in `app/globals.css` (`bg-navy`, `bg-sky`, `bg-pale`, `bg-cloud`, `bg-surface`, `text-ink`, `shadow-soft`); no new colors, no red. Logo: `components/Logo.tsx`.
 - Before committing: `npm run build` and `npm run lint` must pass. If swap rules changed, run `supabase/tests/swap_rules_test.sql` (see HANDOFF.md).

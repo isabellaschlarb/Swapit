@@ -19,7 +19,7 @@ import type { ListingType } from "@/lib/types";
 type Photo = { file: File; preview: string };
 
 const inputClass =
-  "w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-primary";
+  "w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-sky";
 
 // The "post an item" form. It runs in the browser so photos can upload
 // straight from the phone to Supabase Storage:
@@ -118,7 +118,7 @@ export function PostItemForm({ userId }: { userId: string }) {
                 type="button"
                 onClick={() => removePhoto(i)}
                 aria-label="Remove photo"
-                className="absolute right-1 top-1 h-6 w-6 rounded-full bg-cream/90 text-sm leading-6"
+                className="absolute right-1 top-1 h-6 w-6 rounded-full bg-white/90 text-sm leading-6"
               >
                 ×
               </button>
@@ -163,7 +163,7 @@ export function PostItemForm({ userId }: { userId: string }) {
                 onChange={() => setListingType(type.value)}
                 className="peer sr-only"
               />
-              <span className="block rounded-full border border-ink/15 px-2 py-2 text-center text-sm peer-checked:border-primary peer-checked:bg-primary peer-checked:text-cream peer-focus-visible:ring-2 peer-focus-visible:ring-accent">
+              <span className="block rounded-full border border-ink/15 px-2 py-2 text-center text-sm peer-checked:border-navy peer-checked:bg-navy peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-sky">
                 {type.label}
               </span>
             </label>
@@ -226,12 +226,12 @@ export function PostItemForm({ userId }: { userId: string }) {
         <StyleTagPicker />
       </div>
 
-      {error && <p className="rounded-2xl bg-accent/40 p-4 text-sm">{error}</p>}
+      {error && <p className="rounded-2xl bg-pale p-4 text-sm">{error}</p>}
 
       <button
         type="submit"
         disabled={saving}
-        className="w-full rounded-full bg-primary px-6 py-3 font-medium text-cream disabled:opacity-60"
+        className="w-full rounded-full bg-navy px-6 py-3 font-medium text-white disabled:opacity-60"
       >
         {saving ? "Posting…" : "Post item"}
       </button>

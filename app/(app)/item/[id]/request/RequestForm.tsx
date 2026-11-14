@@ -11,7 +11,7 @@ type MyItem = { id: string; title: string; estimated_value_cents: number; photo_
 type Spot = { id: string; name: string; description: string | null };
 
 const inputClass =
-  "w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-primary";
+  "w-full rounded-2xl border border-ink/10 bg-surface px-4 py-3 outline-none focus:border-sky";
 
 export function RequestForm({
   kind,
@@ -50,9 +50,9 @@ export function RequestForm({
 
   if (kind === "swap" && myItems.length === 0) {
     return (
-      <div className="space-y-4 rounded-3xl bg-surface p-6 text-center">
+      <div className="space-y-4 rounded-2xl bg-surface shadow-soft p-6 text-center">
         <p className="text-ink/70">You need an available item of your own to offer in a swap.</p>
-        <Link href="/post" className="inline-block rounded-full bg-primary px-6 py-3 font-medium text-cream">
+        <Link href="/post" className="inline-block rounded-full bg-navy px-6 py-3 font-medium text-white">
           Post an item
         </Link>
       </div>
@@ -73,16 +73,16 @@ export function RequestForm({
             <ul className="space-y-2">
               {myItems.map((item) => (
                 <li key={item.id}>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-2 has-[:checked]:border-primary">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-2 has-[:checked]:border-navy">
                     <input
                       type="checkbox"
                       name="offered_item_ids"
                       value={item.id}
                       checked={selected.includes(item.id)}
                       onChange={() => toggle(item.id)}
-                      className="h-5 w-5 accent-primary"
+                      className="h-5 w-5 accent-navy"
                     />
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-accent/30">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-pale">
                       {item.photo_urls[0] && (
                         <Image src={item.photo_urls[0]} alt="" fill sizes="48px" className="object-cover" />
                       )}
@@ -131,7 +131,7 @@ export function RequestForm({
                       onChange={() => setPayer(option.value as "requester" | "owner")}
                       className="peer sr-only"
                     />
-                    <span className="block rounded-full border border-ink/15 py-2 text-center text-sm peer-checked:border-primary peer-checked:bg-primary peer-checked:text-cream">
+                    <span className="block rounded-full border border-ink/15 py-2 text-center text-sm peer-checked:border-navy peer-checked:bg-navy peer-checked:text-white">
                       {option.label}
                     </span>
                   </label>
@@ -192,13 +192,13 @@ export function RequestForm({
       </section>
 
       {(kind === "buy" || Number(cash) > 0) && (
-        <p className="rounded-2xl bg-accent/40 p-4 text-sm">
+        <p className="rounded-2xl bg-pale p-4 text-sm">
           <span className="font-medium">Pay at meetup.</span> Cash or Venmo, in person, once
           you&apos;ve seen the item. Swapit doesn&apos;t handle payments.
         </p>
       )}
 
-      {state.error && <p className="rounded-2xl bg-accent/40 p-4 text-sm">{state.error}</p>}
+      {state.error && <p className="rounded-2xl bg-pale p-4 text-sm">{state.error}</p>}
 
       <SubmitButton pendingText="Sending…">
         {kind === "buy" ? "Send buy request" : "Send swap request"}

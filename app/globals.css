@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
 /*
-  Swapit design tokens.
+  Swapit design tokens (from design/design.webp).
   Use these class names everywhere instead of picking random colors:
-    bg-primary / text-primary   → deep green  #2F6F4F (main buttons, active tab)
-    bg-accent  / text-accent    → lilac       #C9B6F2 (tags, highlights)
-    bg-cream                    → warm cream  #FAF7F2 (page background)
-    bg-surface                  → soft card   #FFFDF9 (cards, inputs on cream)
-    text-ink                    → near-black  #1F1F1F (all text)
-  For lighter text use opacity, e.g. text-ink/60.
+    bg-navy  / text-navy   → navy       #0D1B3D  primary buttons, logo, headings, active tab
+    bg-sky   / text-sky    → sky blue   #91BDF8  accent, the center + button, icons, highlights
+    bg-pale                → pale blue  #DCEBFF  chips, icon circles, soft backgrounds, blobs
+    bg-cloud               → off-white  #F7FAFF  page background
+    bg-surface             → white      #FFFFFF  cards and inputs
+    text-ink               → navy       #0D1B3D  body text (use text-ink/60 for lighter text)
+  Shapes: cards rounded-2xl (16px) + shadow-soft, buttons rounded-full.
 */
 @theme {
-  --color-primary: #2f6f4f;
-  --color-accent: #c9b6f2;
-  --color-cream: #faf7f2;
-  --color-surface: #fffdf9;
-  --color-ink: #1f1f1f;
+  --color-navy: #0d1b3d;
+  --color-sky: #91bdf8;
+  --color-pale: #dcebff;
+  --color-cloud: #f7faff;
+  --color-surface: #ffffff;
+  --color-ink: #0d1b3d;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Soft, subtle shadow for cards (navy-tinted so it doesn't look grey). */
+  --shadow-soft: 0 1px 2px rgb(13 27 61 / 0.04), 0 6px 20px rgb(13 27 61 / 0.06);
+  /* Lifted shadow for the raised + button. */
+  --shadow-lift: 0 6px 16px rgb(13 27 61 / 0.18);
 }
 
 body {
-  background: var(--color-cream);
+  background: var(--color-cloud);
   color: var(--color-ink);
+}
+
+/* Dropdowns: use the brand font and a thin navy arrow instead of the
+   browser's default look, so they match the text inputs. */
+select {
+  font-family: inherit;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230D1B3D' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 1.1rem;
+  padding-right: 2.5rem;
 }

@@ -38,19 +38,19 @@ export default async function RequestPage({ params, searchParams }: PageProps<"/
 
   return (
     <main className="space-y-6 px-5 pt-6">
-      <Link href={`/item/${id}`} className="text-sm text-primary">
+      <Link href={`/item/${id}`} className="text-sm text-navy">
         ← Back
       </Link>
 
       <header className="flex items-center gap-4">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-accent/30">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-pale">
           {item.photo_urls[0] && (
             <Image src={item.photo_urls[0]} alt="" fill sizes="64px" className="object-cover" />
           )}
         </div>
         <div className="min-w-0">
           <p className="text-sm text-ink/60">{kind === "buy" ? "Buy" : "Swap for"}</p>
-          <h1 className="truncate text-xl font-semibold tracking-tight">{item.title}</h1>
+          <h1 className="truncate text-xl font-extrabold tracking-tight text-navy">{item.title}</h1>
           <p className="text-sm text-ink/60">{listingLabel(item)}</p>
         </div>
       </header>

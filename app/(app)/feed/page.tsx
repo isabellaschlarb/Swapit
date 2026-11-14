@@ -1,30 +1,51 @@
-import { ItemGrid } from "@/components/ItemCard";
-import { PageHeader } from "@/components/PageHeader";
-import { createClient, getMyProfile } from "@/lib/supabase/server";
+import { FeedHeader, type FeedTab } from "@/components/FeedHeader";
+import { ItemGrid, type ItemOwner } from "@/components/ItemCard";
+import { createClient } from "@/lib/supabase/server";
 import type { Item } from "@/lib/types";
 
 // The feed: newest available items at MY school.
 // We don't filter by school here, because the database security rules
 // (RLS) already hide items from other schools.
-export default async function FeedPage() {
+//
+// "For You" is where AI style matching will plug in (see HANDOFF.md).
+// "Following" and "Trending" are placeholders for now.
+export default async function FeedPage({ searchParams }: PageProps<"/feed">) {
+  const { tab } = await searchParams;
+  const active: FeedTab = tab === "following" || tab === "trending" ? tab : "for-you";
+
+  if (active !== "for-you") {
+    return (
+      <main>
+        <FeedHeader active={active} />
+        <section className="px-5">
+          <div className="space-y-2 rounded-2xl bg-surface p-8 text-center shadow-soft">
+            <p className="font-bold text-navy">Coming soon</p>
+            <p className="text-sm text-ink/60">
+              {active === "following"
+                ? "Follow students to see their newest posts here."
+                : "The most-loved items on campus will show up here."}
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   const supabase = await createClient();
-  const [profile, { data: items }] = await Promise.all([
-    getMyProfile(),
-    supabase
-      .from("items")
-      .select("*")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(60),
-  ]);
+  const { data: items } = await supabase
+    .from("items")
+    .select("*, owner:profiles(display_name, avatar_url)")
+    .eq("status", "available")
+    .order("created_at", { ascending: false })
+    .limit(60);
 
   return (
     <main>
-      <PageHeader title="Feed" subtitle={profile ? `Fresh finds at ${profile.schoolName}` : undefined} />
+      <FeedHeader active={active} />
       <section className="px-5">
         <ItemGrid
-          items={(items ?? []) as Item[]}
-          emptyText="Nothing posted yet. Be the first. Tap Post!"
+          items={(items ?? []) as (Item & { owner: ItemOwner | null })[]}
+          emptyText="Nothing posted yet. Be the first, tap +!"
         />
       </section>
     </main>

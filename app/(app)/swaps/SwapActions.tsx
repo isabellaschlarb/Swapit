@@ -20,7 +20,7 @@ export function SwapActions({ swapId, actions }: { swapId: string; actions: Swap
           <ActionButton key={action.status} action={action} />
         ))}
       </div>
-      {state.error && <p className="rounded-2xl bg-accent/40 p-3 text-sm">{state.error}</p>}
+      {state.error && <p className="rounded-2xl bg-pale p-3 text-sm">{state.error}</p>}
     </form>
   );
 }
@@ -34,7 +34,7 @@ function ActionButton({ action }: { action: SwapAction }) {
       value={action.status}
       disabled={pending}
       className={`flex-1 rounded-full px-4 py-2 text-sm font-medium disabled:opacity-60 ${
-        action.primary ? "bg-primary text-cream" : "border border-ink/15 text-ink/70"
+        action.primary ? "bg-navy text-white" : "border border-ink/15 text-ink/70"
       }`}
     >
       {action.label}

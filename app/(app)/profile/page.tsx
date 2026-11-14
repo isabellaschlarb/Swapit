@@ -21,11 +21,11 @@ export default async function ProfilePage() {
   return (
     <main className="space-y-8 px-5 pt-8">
       <section className="flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-2xl font-medium">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-pale text-2xl font-extrabold text-navy">
           {initial}
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{profile.display_name}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-navy">{profile.display_name}</h1>
           <p className="text-sm text-ink/60">{profile.schoolName}</p>
         </div>
       </section>
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
       {profile.style_tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {profile.style_tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-accent/50 px-3 py-1 text-sm">
+            <span key={tag} className="rounded-full bg-pale px-3 py-1 text-sm text-navy">
               {tag}
             </span>
           ))}

@@ -134,15 +134,19 @@ npx supabase db query --remote --yes -f supabase/tests/swap_rules_test.sql -o ta
 ```
 It tests about 50 cases as fake users and then **undoes everything**, so it's safe to run on the real database. Every line should say PASS.
 
-### Design tokens
+### Design (brand board: `design/design.webp`)
 Use these Tailwind classes instead of picking colors (defined in `app/globals.css`):
 
 | Class | Color | Use for |
 |---|---|---|
-| `bg-primary`, `text-primary` | deep green `#2F6F4F` | main buttons, active tab |
-| `bg-accent` | lilac `#C9B6F2` | tags, highlights, notices |
-| `bg-cream` | warm cream `#FAF7F2` | page background |
-| `bg-surface` | soft card `#FFFDF9` | cards and inputs |
-| `text-ink` | near-black `#1F1F1F` | text (`text-ink/60` for lighter text) |
+| `bg-navy`, `text-navy` | navy `#0D1B3D` | primary buttons, logo, headings, active tab |
+| `bg-sky`, `text-sky` | sky blue `#91BDF8` | accent, the center + button, highlights |
+| `bg-pale` | pale blue `#DCEBFF` | chips, icon circles, notices, background blobs |
+| `bg-cloud` | off-white `#F7FAFF` | page background |
+| `bg-surface` | white `#FFFFFF` | cards and inputs |
+| `text-ink` | navy `#0D1B3D` | body text (`text-ink/60` for lighter text) |
 
-Keep it minimal: rounded corners, lots of space, one main button per screen, no red, no stark black/white.
+- **Font:** Plus Jakarta Sans. Use `font-extrabold` for titles, regular for body text.
+- **Shapes:** cards `rounded-2xl` (16px) with `shadow-soft`, buttons `rounded-full`.
+- **Logo:** `<Logo />` and `<AppIcon />` in `components/Logo.tsx`. The browser-tab icon is `app/icon.svg` (same drawing).
+- Keep it calm and minimal: lots of white space, one main button per screen, no red, no new colors.
