@@ -7,3 +7,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Swapit project rules
+
+- Read `HANDOFF.md` first. Keep code simple and readable; teammates are not technical.
+- Database changes go in a NEW numbered file in `supabase/migrations/` (e.g. `0004_...sql`). Never edit a migration that has already been run (0001–0003 are live).
+- Security rules live in the database (RLS + triggers). Don't weaken them to make app code work; never use the Supabase service_role / secret key in the app.
+- Secrets (AI API keys etc.) go in `.env.local` only, with names that do NOT start with `NEXT_PUBLIC_`, and are used only in server code. Never commit `.env.local`.
+- Money is stored in cents (`2000` = $20). Use helpers in `lib/format.ts`.
+- Use the design tokens in `app/globals.css` (`bg-primary`, `bg-accent`, `bg-cream`, `bg-surface`, `text-ink`); no new colors, no red.
+- Before committing: `npm run build` and `npm run lint` must pass. If swap rules changed, run `supabase/tests/swap_rules_test.sql` (see HANDOFF.md).
