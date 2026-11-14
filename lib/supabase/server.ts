@@ -1,5 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
+import type { Profile } from "@/lib/types";
 
 // Supabase client for code that runs on the server: pages, server actions,
 // and route handlers. It reads the login session from the browser's cookies,
@@ -32,8 +34,27 @@ export async function createClient() {
 }
 
 // Returns the signed-in user, or null if nobody is signed in.
-export async function getCurrentUser() {
+// cache() means: if several parts of the same page ask, we only look it up once.
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   return data.user;
-}
+});
+
+// Returns the signed-in user's profile plus their school's name,
+// or null if nobody is signed in.
+export const getMyProfile = cache(async () => {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("*, school:schools(name)")
+    .eq("id", user.id)
+    .single();
+  if (!data) return null;
+
+  const { school, ...profile } = data as Profile & { school: { name: string } | null };
+  return { ...profile, schoolName: school?.name ?? "" };
+});
