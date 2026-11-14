@@ -45,7 +45,7 @@ export default async function ConfirmPage({ searchParams }: PageProps<"/auth/con
             <p className="text-ink/70">
               {hasLink
                 ? "Tap the button to finish signing in to Swapit."
-                : "This sign-in link is missing a piece. Request a new one."}
+                : "This sign-in link is missing a piece. Ask for a new code."}
             </p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default async function ConfirmPage({ searchParams }: PageProps<"/auth/con
               href="/login"
               className="block rounded-full bg-navy px-6 py-3.5 text-center font-semibold text-white"
             >
-              Get a new link
+              Get a new code
             </Link>
           )}
         </div>
