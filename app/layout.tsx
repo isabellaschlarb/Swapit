@@ -27,15 +27,14 @@ export const metadata: Metadata = {
 };
 
 // Phone viewport settings:
-//  - no pinch-zoom / zoom on double tap, so it feels like an app
+//  - pinch-zoom stays ON so people with low vision can enlarge things
+//    (text fields are 16px+ in globals.css, so iPhones don't auto-zoom on tap)
 //  - viewportFit "cover" lets us use the full screen and pad around the
 //    iPhone notch / home bar ourselves with env(safe-area-inset-*)
 //  - navy browser/status bar to match the app icon
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
   themeColor: "#0D1B3D",
 };
