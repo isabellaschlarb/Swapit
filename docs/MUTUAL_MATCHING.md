@@ -63,8 +63,11 @@ a useful setup/retry message; no provider request is sent.
 Each Find click consumes one durable quota slot: at most one per 30 seconds and
 30 per UTC day per student, across server processes. Preference save/remove and
 review do not call AI. A search examines the newest 20 own and 100 other campus
-swap-eligible listings, builds at most 24 reciprocal pairs (at most three per
-other owner), and displays at most three owners. This intentionally bounded MVP
+swap-eligible listings, selects at most 24 reciprocal pairs round-robin across
+owners, and displays at most three owners. Owners with more alternatives can use
+remaining slots, so optional description checks can consider a fourth or later
+pair. The 24-candidate cap can still exclude later alternatives when inventory
+exceeds the budget. This intentionally bounded MVP
 does not search the entire campus inventory or optimize value differences.
 
 If any candidate has optional description preferences, an uncached search makes
@@ -90,11 +93,13 @@ can age; review and final submission recheck availability.
 
 ## Validation in this session
 
-17 application tests passed using VS Code's embedded Node v24.22.1. Coverage:
+20 application tests passed using VS Code's embedded Node v24.22.1. Coverage:
 reciprocal/missing preferences, school and ownership boundaries, unavailable and
 sell-only listings, sizes/categories, bounded/private provider input, invalid
 output, provider failure, no-AI filtering, cache freshness, changed data during
-ranking, request quota failures, preference create/edit/opt-out, and manual review.
+ranking, request quota failures, preference create/edit/opt-out, manual review,
+a fourth pair succeeding after three description failures, the 24-candidate cap
+for a prolific owner, and owner diversity despite uneven inventory.
 Provider and database responses are mocked; these do not prove live RLS behavior.
 
 ESLint passed using the same runtime and the project's existing CLI. The standard

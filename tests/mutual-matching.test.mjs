@@ -144,7 +144,7 @@ function harness() {
       assert.match(payload.instructions, /untrusted data/);
       state.afterAI();
       if (state.failAI) throw new Error("provider down");
-      return { output_text: state.aiOutput };
+      return { output_text: typeof state.aiOutput === "function" ? state.aiOutput(payload) : state.aiOutput };
     } };
   }
   const load = modules({ openai: OpenAI, "@/lib/supabase/server": { createClient: async () => db, getCurrentUser: async () => state.signedIn ? { id: me } : null } });
@@ -246,4 +246,60 @@ test("candidates and displayed matches are bounded and spread across owners", ()
   assert.equal(candidates.length, 24);
   assert.equal(core.fewPairs(candidates).length, 3);
   assert.equal(new Set(core.fewPairs(candidates).map((p) => p.wanted.owner_id)).size, 3);
+});
+test("a fourth pair reaches displayed recommendations when the first three fail description checks", async () => {
+  const h = harness();
+  const offered = h.f.items[1];
+  h.f.items = [h.f.items[0], ...Array.from({ length: 4 }, (_, index) => ({
+    ...offered, id: offeredId.slice(0, -1) + (index + 4),
+    title: index === 3 ? "Cotton tee" : `Synthetic tee ${index}`,
+    description: index === 3 ? "Organic cotton" : "Polyester",
+  }))];
+  h.f.preferences[1].details = "Organic cotton";
+  let assessed = [];
+  // A deterministic provider stub assesses actual descriptions; candidate
+  // selection, payload validation and displayed route results are production code.
+  h.state.aiOutput = ({ input }) => {
+    assessed = JSON.parse(input).map((candidate) => ({
+      id: candidate.id, fits: candidate.offered.description === "Organic cotton",
+    }));
+    return JSON.stringify({ matches: assessed });
+  };
+  const result = await h.post({ action: "find" });
+  assert.equal(result.status, 200);
+  assert.equal(assessed.length, 4);
+  assert.deepEqual(assessed.map((p) => p.fits), [false, false, false, true]);
+  assert.equal(result.body.matches.length, 1);
+  assert.equal(result.body.matches[0].offered.id, h.f.items[4].id);
+  assert.match(result.body.message, /AI suggested/);
+  assert.equal(h.state.calls, 1);
+});
+test("one owner with many compatible pairs fills but never exceeds 24 provider candidates", () => {
+  const f = fixtures();
+  const [wanted, offered] = f.items;
+  f.items = [
+    ...Array.from({ length: 8 }, (_, i) => ({ ...wanted, id: `wanted-${i}` })),
+    ...Array.from({ length: 8 }, (_, i) => ({ ...offered, id: `offered-${i}` })),
+  ];
+  const selected = pairs(f);
+  assert.equal(selected.length, 24);
+  assert.equal(core.aiCandidates(selected).length, 24);
+  assert.equal(new Set(selected.map((p) => `${p.wanted.id}:${p.offered.id}`)).size, 24);
+  assert.ok(selected.every((p) => p.wanted.owner_id === them));
+});
+test("a prolific first owner does not crowd out later eligible owners", () => {
+  const f = fixtures();
+  const [wanted, offered] = f.items;
+  f.items = Array.from({ length: 30 }, (_, i) => ({ ...wanted, id: `prolific-${i}` }));
+  const otherOwners = ["second-owner", "third-owner"];
+  for (const owner of otherOwners) {
+    f.preferences.push({ ...f.preferences[1], user_id: owner });
+    f.items.push({ ...wanted, id: `${owner}-item`, owner_id: owner });
+  }
+  f.items.push(offered);
+  const selected = pairs(f);
+  assert.equal(selected.length, 24);
+  assert.deepEqual(Array.from(selected.slice(0, 3), (p) => p.wanted.owner_id), [them, ...otherOwners]);
+  assert.equal(selected.filter((p) => p.wanted.owner_id === them).length, 22);
+  assert.equal(core.fewPairs(selected).length, 3);
 });

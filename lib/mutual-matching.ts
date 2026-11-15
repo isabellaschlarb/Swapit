@@ -25,16 +25,27 @@ export function candidatePairs(userId: string, schoolId: string, items: Item[], 
   if (!mine) return [];
   const available = items.filter((item) => eligible(item, schoolId));
   const offered = available.filter((item) => item.owner_id === userId);
-  const pairs: Pair[] = [];
-  const perOwner = new Map<string, number>();
+  const byOwner = new Map<string, Pair[]>();
   for (const wanted of available) {
     const theirs = prefs.get(wanted.owner_id);
     if (wanted.owner_id === userId || !theirs || !fits(wanted, mine)) continue;
+    const alternatives = byOwner.get(wanted.owner_id) ?? [];
+    // No owner can contribute more than the total provider budget. Keep enough
+    // alternatives for description checks without building an unbounded group.
+    if (alternatives.length === 24) continue;
     for (const item of offered) {
-      if (fits(item, theirs) && (perOwner.get(wanted.owner_id) ?? 0) < 3) {
-        pairs.push({ wanted, offered: item, mine, theirs });
-        perOwner.set(wanted.owner_id, (perOwner.get(wanted.owner_id) ?? 0) + 1);
-      }
+      if (fits(item, theirs)) alternatives.push({ wanted, offered: item, mine, theirs });
+      if (alternatives.length === 24) break;
+    }
+    if (alternatives.length) byOwner.set(wanted.owner_id, alternatives);
+  }
+  // Give each owner one candidate before taking their next alternative. Spare
+  // slots go to owners with more options; the provider still receives at most 24.
+  const pairs: Pair[] = [];
+  for (let index = 0; index < 24; index++) {
+    for (const alternatives of byOwner.values()) {
+      const pair = alternatives[index];
+      if (pair) pairs.push(pair);
       if (pairs.length === 24) return pairs;
     }
   }
