@@ -21,7 +21,7 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
 
   const { owner, ...item } = data as Item & { owner: { display_name: string | null } | null };
   const isMine = item.owner_id === user?.id;
-  const details = [item.category, item.size, item.condition].filter(Boolean);
+  const details = [item.category, item.size, item.color, item.condition].filter(Boolean);
   const canSwap = item.listing_type !== "sell";
   const canBuy = item.listing_type !== "swap";
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
+import { cashDifference, suggestFairSwap } from "@/lib/fair-swap";
 import { formatCents } from "@/lib/format";
 import { createSwapRequest, type RequestState } from "./actions";
 
@@ -40,12 +41,35 @@ export function RequestForm({
   const [meetupLocal, setMeetupLocal] = useState("");
   const meetupIso = meetupLocal ? new Date(meetupLocal).toISOString() : "";
 
-  const offeredValue = myItems
-    .filter((item) => selected.includes(item.id))
-    .reduce((sum, item) => sum + item.estimated_value_cents, 0);
+  // Fair-swap helper: once someone types their own cash amount, we stop
+  // pre-filling it.
+  const [cashTouched, setCashTouched] = useState(false);
+  const suggestion = kind === "swap" ? suggestFairSwap(myItems, itemValueCents) : null;
+
+  const valueOf = (ids: string[]) =>
+    myItems.filter((item) => ids.includes(item.id)).reduce((sum, item) => sum + item.estimated_value_cents, 0);
+  const offeredValue = valueOf(selected);
+
+  // Pre-fill the cash difference (whole dollars) for a set of offered items.
+  function prefillCash(ids: string[]) {
+    if (itemValueCents <= 0 || ids.length === 0) return setCash("");
+    const { cashCents, cashPaidBy } = cashDifference(valueOf(ids), itemValueCents);
+    const dollars = Math.round(cashCents / 100);
+    setCash(dollars > 0 ? String(dollars) : "");
+    if (cashPaidBy) setPayer(cashPaidBy);
+  }
 
   function toggle(id: string) {
-    setSelected((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+    const ids = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    setSelected(ids);
+    if (!cashTouched) prefillCash(ids);
+  }
+
+  function applySuggestion() {
+    if (!suggestion) return;
+    setSelected(suggestion.itemIds);
+    setCashTouched(false);
+    prefillCash(suggestion.itemIds);
   }
 
   if (kind === "swap" && myItems.length === 0) {
@@ -70,6 +94,7 @@ export function RequestForm({
           {/* 1. Which of my items to offer */}
           <section className="space-y-3">
             <h2 className="font-medium">What will you offer?</h2>
+            {suggestion && <FairSwapCard suggestion={suggestion} myItems={myItems} onUse={applySuggestion} />}
             <ul className="space-y-2">
               {myItems.map((item) => (
                 <li key={item.id}>
@@ -113,7 +138,10 @@ export function RequestForm({
               step="1"
               placeholder="$0"
               value={cash}
-              onChange={(e) => setCash(e.target.value)}
+              onChange={(e) => {
+                setCash(e.target.value);
+                setCashTouched(true);
+              }}
               className={inputClass}
             />
             {Number(cash) > 0 && (
@@ -204,5 +232,39 @@ export function RequestForm({
         {kind === "buy" ? "Send buy request" : "Send swap request"}
       </SubmitButton>
     </form>
+  );
+}
+
+// "✨ Fair swap" suggestion: the closest-value combo of my items, plus
+// who'd pay the cash difference. Tapping "Use this" fills in the form.
+function FairSwapCard({
+  suggestion,
+  myItems,
+  onUse,
+}: {
+  suggestion: NonNullable<ReturnType<typeof suggestFairSwap>>;
+  myItems: MyItem[];
+  onUse: () => void;
+}) {
+  const titles = myItems.filter((item) => suggestion.itemIds.includes(item.id)).map((item) => item.title);
+  const dollars = Math.round(suggestion.cashCents / 100);
+  const cashText =
+    dollars === 0 || !suggestion.cashPaidBy
+      ? "That's an even swap."
+      : suggestion.cashPaidBy === "requester"
+        ? `You add ${formatCents(dollars * 100)} to even it out.`
+        : `They add ${formatCents(dollars * 100)} to even it out.`;
+
+  return (
+    <div className="space-y-2 rounded-2xl bg-pale p-4 text-sm">
+      <p className="font-semibold text-navy">✨ Fair swap suggestion</p>
+      <p>
+        Offer <span className="font-medium">{titles.join(" + ")}</span> (≈ {formatCents(suggestion.offeredCents)}).{" "}
+        {cashText}
+      </p>
+      <button type="button" onClick={onUse} className="rounded-full bg-navy px-4 py-2 font-medium text-white">
+        Use this
+      </button>
+    </div>
   );
 }
