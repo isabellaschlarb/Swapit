@@ -34,7 +34,7 @@ export default async function FeedPage({ searchParams }: PageProps<"/feed">) {
   const supabase = await createClient();
   const { data: items } = await supabase
     .from("items")
-    .select("*, owner:profiles(display_name, avatar_url)")
+    .select("*, owner:profiles!items_owner_id_fkey(display_name, avatar_url)")
     .eq("status", "available")
     .order("created_at", { ascending: false })
     .limit(60);

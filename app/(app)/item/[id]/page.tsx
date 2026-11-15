@@ -14,7 +14,7 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
   // RLS hides it and we show "not found".
   const { data } = await supabase
     .from("items")
-    .select("*, owner:profiles(display_name)")
+    .select("*, owner:profiles!items_owner_id_fkey(display_name)")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
