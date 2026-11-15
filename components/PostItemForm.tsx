@@ -262,7 +262,7 @@ export function PostItemForm({ userId }: { userId: string }) {
 
       <div className="space-y-3">
         <p className="text-sm text-ink/70">Style tags</p>
-        <button type="button" onClick={(event) => suggestTags(event.currentTarget.form)} disabled={suggesting} className="rounded-full border border-primary px-4 py-2 text-sm text-primary disabled:opacity-60">
+        <button type="button" onClick={(event) => suggestTags(event.currentTarget.form)} disabled={suggesting} className="rounded-full border border-navy px-4 py-2 text-sm text-navy disabled:opacity-60">
           {suggesting ? "Finding suggestions…" : "Suggest style tags"}
         </button>
         <p className="text-sm text-ink/70" role="status">{suggesting ? "Finding style tags…" : suggestionMessage}</p>
@@ -271,7 +271,7 @@ export function PostItemForm({ userId }: { userId: string }) {
             <p className="text-sm text-ink/70">Tap a suggestion to add it:</p>
             <div className="flex flex-wrap gap-2">
               {suggestions.filter((tag) => !tags.includes(tag)).map((tag) => (
-                <button key={tag} type="button" onClick={() => { setTags([...tags, tag]); setSuggestions(suggestions.filter((item) => item !== tag)); }} className="rounded-full border border-primary px-4 py-2 text-sm text-primary">+ {tag}</button>
+                <button key={tag} type="button" onClick={() => { setTags([...tags, tag]); setSuggestions(suggestions.filter((item) => item !== tag)); }} className="rounded-full border border-navy px-4 py-2 text-sm text-navy">+ {tag}</button>
               ))}
             </div>
           </div>
