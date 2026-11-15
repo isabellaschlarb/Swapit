@@ -47,5 +47,8 @@ export type SwapRequest = {
   status: SwapStatus;
   meetup_spot_id: string | null;
   meetup_time: string | null;
+  // Friendly note the database adds when it closes a request automatically
+  // (e.g. the item went to another swap). Null otherwise.
+  closed_note: string | null;
   created_at: string;
 };

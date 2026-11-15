@@ -230,13 +230,34 @@ begin
     pg_temp.request_sql(a_hot, array[b_item2], 0, null, spot, soon)) || E'\n';
   r := r || pg_temp.check_as('D requests it too', d,
     pg_temp.request_sql(a_hot, array[d_item], 0, null, spot, soon)) || E'\n';
+  r := r || pg_temp.check_as('B also offers the same hoodie to D for D''s jacket', b,
+    pg_temp.request_sql(d_item, array[b_item2], 0, null, spot, soon)) || E'\n';
   r := r || pg_temp.check_as('Owner accepts B', a,
     format('update public.swap_requests set status = %L where requested_item_id = %L and requester_id = %L', 'accepted', a_hot, b)) || E'\n';
+  r := r || pg_temp.check_eq('D''s request for the same item is auto-declined',
+    (select status from public.swap_requests where requested_item_id = a_hot and requester_id = d), 'declined') || E'\n';
+  r := r || pg_temp.check_eq('…with a friendly note for D',
+    (select (closed_note like 'Thanks for your offer!%')::text from public.swap_requests where requested_item_id = a_hot and requester_id = d), 'true') || E'\n';
+  r := r || pg_temp.check_eq('B''s other offer of the on-hold hoodie is auto-cancelled',
+    (select status from public.swap_requests where requested_item_id = d_item and requester_id = b), 'cancelled') || E'\n';
+  r := r || pg_temp.check_eq('The accepted request has no note',
+    (select coalesce(closed_note, 'none') from public.swap_requests where requested_item_id = a_hot and requester_id = b), 'none') || E'\n';
   r := r || pg_temp.check_as('Owner can''t also accept D', a,
     format('update public.swap_requests set status = %L where requested_item_id = %L and requester_id = %L', 'accepted', a_hot, d),
-    'isn''t available anymore') || E'\n';
+    'can''t go from declined to accepted') || E'\n';
   r := r || pg_temp.check_as('B can''t use an on-hold item in a new offer', b,
     pg_temp.request_sql(a_both, array[b_item2], 0, null, spot, soon), 'own available items') || E'\n';
+
+  ---------------------------------------------------------------- the note is database-only
+  r := r || E'\n-- Only the database writes closed_note\n';
+  r := r || pg_temp.check_as('A note sent with a new request is thrown away', d,
+    format('insert into public.swap_requests (requested_item_id, offered_item_ids, meetup_spot_id, meetup_time, closed_note)
+            values (%L, %L, %L, %L, %L)', a_extra, array[d_item], spot, soon, 'fake note')) || E'\n';
+  r := r || pg_temp.check_eq('…note is empty',
+    (select coalesce(closed_note, 'none') from public.swap_requests where requested_item_id = a_extra and requester_id = d), 'none') || E'\n';
+  r := r || pg_temp.check_as('Users can''t edit the note', d,
+    format('update public.swap_requests set closed_note = %L where requested_item_id = %L and requester_id = %L', 'hi', a_extra, d),
+    'permission denied') || E'\n';
 
   ---------------------------------------------------------------- done: undo everything
   raise exception E'TEST REPORT (all test data rolled back)%\nTotal: % passed, % failed',

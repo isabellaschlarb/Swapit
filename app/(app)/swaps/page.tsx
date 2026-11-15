@@ -176,6 +176,9 @@ function SwapCard({
         </p>
       )}
 
+      {/* Only the requester sees the note (the owner already knows why) */}
+      {!isOwner && swap.closed_note && <p className="rounded-2xl bg-pale px-3 py-2 text-sm">{swap.closed_note}</p>}
+
       {itemOnHoldElsewhere && (
         <p className="text-sm text-ink/60">This item is on hold in another swap right now.</p>
       )}

@@ -69,6 +69,7 @@ We use **Supabase** (a hosted Postgres database). The *shape* of the database (t
 | `0001_init.sql` | All the tables, security rules, and the photo storage bucket |
 | `0002_hardening.sql` | Security and speed tune-up |
 | `0003_swap_flow.sql` | Listing types, prices, and the swap/buy rules |
+| `0004_auto_decline_on_accept.sql` | When a swap is accepted, other open requests for those items close automatically with a friendly note |
 
 **The golden rules:**
 1. **Never edit a migration file that has already been run.** All three above have already run on the live database. Editing them does nothing to the real database and confuses everyone.
