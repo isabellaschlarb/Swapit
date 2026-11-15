@@ -22,7 +22,11 @@ Jasper built the base app. Your job is the smart stuff (style matching, auto-tag
 - No chat between swappers yet (the `messages` table exists, but there's no screen).
 - No editing or deleting items, no profile editing, no profile photos.
 - Payments are in person only (cash or Venmo). No Stripe.
-- No AI yet. That's you!
+- **AI / smart features** (branch `ai-core`):
+  - **Snap-to-list:** adding the first photo on /post sends a small copy to `app/api/snap-to-list/route.ts` (OpenAI vision, server only, `OPENAI_API_KEY`). It fills in empty fields, marked "✨ Filled by AI". If AI fails, posting still works.
+  - **Likes:** the heart saves to the `likes` table (`0007_likes_and_color.sql`). Liked items show on your Profile.
+  - **For You feed:** ranked by style-tag overlap with your profile + liked items, plus newness (`lib/for-you.ts`, no AI call). Top matches get "✨ Matches your style".
+  - **Fair-swap helper:** on Request swap, suggests the combo of your items closest in value and pre-fills the cash difference (`lib/fair-swap.ts`, no AI call).
 
 **Things to know:**
 - The swap/buy screens were built and checked automatically (the database rules pass all 49 tests), but nobody has clicked through them with two real accounts yet. Please try it with a teammate and tell Jasper if anything looks off.
@@ -69,6 +73,7 @@ We use **Supabase** (a hosted Postgres database). The *shape* of the database (t
 | `0001_init.sql` | All the tables, security rules, and the photo storage bucket |
 | `0002_hardening.sql` | Security and speed tune-up |
 | `0003_swap_flow.sql` | Listing types, prices, and the swap/buy rules |
+| `0007_likes_and_color.sql` | The `likes` table (hearts) and an item `color` column |
 
 **The golden rules:**
 1. **Never edit a migration file that has already been run.** All three above have already run on the live database. Editing them does nothing to the real database and confuses everyone.

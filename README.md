@@ -62,7 +62,7 @@ Supabase is our backend: it stores users, items, and photos.
    `.env.local` is never uploaded to GitHub. Don't paste these keys into chats or docs.
 
 ### 6. Run it
-To enable optional AI style-tag suggestions, add `OPENAI_API_KEY` to your private `.env.local` file. Keep the key secret and do not use a `NEXT_PUBLIC_` prefix. Without it, you can still choose tags and post items normally.
+To enable AI snap-to-list (a photo fills in the Post form), add `OPENAI_API_KEY` to your private `.env.local` file. Keep the key secret and do not use a `NEXT_PUBLIC_` prefix. Without it, the form says it couldn't auto-fill and you can still post items normally.
 
 In a terminal, inside the project folder:
 ```
@@ -85,7 +85,7 @@ Open http://localhost:3000. To see it like a phone, press F12 in Chrome and clic
 
 Every push to GitHub now redeploys automatically.
 
-To enable AI style suggestions on Vercel, add `OPENAI_API_KEY` under the project's Settings → Environment Variables for the desired environments, then redeploy. Never put the key in source code or share it in chat.
+To enable AI snap-to-list on Vercel, add `OPENAI_API_KEY` under the project's Settings → Environment Variables for the desired environments, then redeploy. Never put the key in source code or share it in chat.
 
 ---
 
