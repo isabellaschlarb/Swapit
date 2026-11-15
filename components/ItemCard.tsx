@@ -2,14 +2,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { Avatar } from "@/components/Avatar";
 import { HeartButton } from "@/components/HeartButton";
+import { UserName } from "@/components/UserName";
 import { listingLabel, sizeLabel } from "@/lib/format";
 import type { Item } from "@/lib/types";
 
-export type ItemOwner = { display_name: string | null; avatar_url: string | null };
+// The owner info shown under a card. `spot` is their preferred meetup
+// spot (we show that instead of distance, since we don't track location).
+export type ItemOwner = {
+  id?: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  spot?: { name: string } | null;
+};
 
-// One white card in an item grid: photo (with heart), title,
-// "Size M · Swap or $35", and optionally the owner's avatar + name.
-export function ItemCard({ item, owner }: { item: Item; owner?: ItemOwner | null }) {
+// Use this in .select() to load an item's owner for a card.
+export const OWNER_SELECT = "owner:profiles!items_owner_id_fkey(id, display_name, avatar_url, spot:meetup_spots(name))";
+
+// One white card in an item grid (like the brand board): photo with heart,
+// title, "Size M · Swap or $35", then the owner's avatar + name (+ verified
+// shield) and their usual meetup spot.
+// `match` shows the "Matches your style" badge (For You feed).
+export function ItemCard({
+  item,
+  owner,
+  liked = false,
+  match = false,
+  showHeart = true,
+  note,
+}: {
+  item: Item;
+  owner?: ItemOwner | null;
+  liked?: boolean;
+  match?: boolean;
+  showHeart?: boolean;
+  note?: string; // small extra line, e.g. "♥ 5 this week"
+}) {
   const photo = item.photo_urls[0];
 
   return (
@@ -25,10 +52,16 @@ export function ItemCard({ item, owner }: { item: Item; owner?: ItemOwner | null
               className="object-cover"
             />
           )}
-          {item.status !== "available" && (
+          {item.status !== "available" ? (
             <span className="absolute left-2 top-2 rounded-full bg-surface/90 px-2 py-0.5 text-xs">
               {item.status}
             </span>
+          ) : (
+            match && (
+              <span className="absolute bottom-2 left-2 rounded-full bg-navy px-2.5 py-1 text-[11px] font-semibold text-white">
+                ✨ Matches your style
+              </span>
+            )
           )}
         </div>
         <div className="px-1">
@@ -36,37 +69,67 @@ export function ItemCard({ item, owner }: { item: Item; owner?: ItemOwner | null
           <p className="truncate text-xs text-ink/60">
             {[sizeLabel(item.size), listingLabel(item)].filter(Boolean).join(" · ")}
           </p>
+          {note && <p className="truncate text-xs font-semibold text-navy">{note}</p>}
         </div>
       </Link>
 
       {owner && (
-        <div className="mt-2 flex items-center gap-1.5 px-1 pb-1 text-xs text-ink/70">
-          <Avatar name={owner.display_name} url={owner.avatar_url} />
-          <span className="truncate">{owner.display_name ?? "student"}</span>
+        <div className="mt-2 flex items-center justify-between gap-2 px-1 pb-1 text-xs text-ink/70">
+          <Link href={owner.id ? `/people/${owner.id}` : "#"} className="flex min-w-0 items-center gap-1.5">
+            <Avatar name={owner.display_name} url={owner.avatar_url} />
+            <UserName name={owner.display_name} badgeSize={12} />
+          </Link>
+          {owner.spot && (
+            <span className="flex min-w-0 shrink items-center gap-0.5 text-ink/50" title={`Usually meets at ${owner.spot.name}`}>
+              <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+                <path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z" />
+                <circle cx="12" cy="10" r="2" />
+              </svg>
+              <span className="truncate">{owner.spot.name}</span>
+            </span>
+          )}
         </div>
       )}
 
       {/* Outside the link so tapping the heart doesn't open the item */}
-      <HeartButton className="absolute right-4 top-4" />
+      {showHeart && <HeartButton itemId={item.id} initialLiked={liked} className="absolute right-4 top-4" />}
     </div>
   );
 }
 
-// A 2-column grid of ItemCards, with a friendly message when empty.
+// A grid of ItemCards, with a friendly message when empty.
 export function ItemGrid({
   items,
   emptyText,
+  empty,
+  likedIds,
+  matchIds,
+  notes,
+  myId,
 }: {
   items: (Item & { owner?: ItemOwner | null })[];
-  emptyText: string;
+  emptyText?: string;
+  empty?: React.ReactNode; // a richer empty state (overrides emptyText)
+  likedIds?: Set<string>;
+  matchIds?: Set<string>;
+  notes?: Map<string, string>;
+  myId?: string; // no heart on my own items
 }) {
   if (items.length === 0) {
-    return <p className="rounded-2xl bg-surface p-6 text-center text-ink/60 shadow-soft">{emptyText}</p>;
+    return empty ?? <p className="rounded-2xl bg-surface p-6 text-center text-ink/60 shadow-soft">{emptyText}</p>;
   }
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-5">
       {items.map((item) => (
-        <ItemCard key={item.id} item={item} owner={item.owner} />
+        <ItemCard
+          key={item.id}
+          item={item}
+          owner={item.owner}
+          liked={likedIds?.has(item.id)}
+          match={matchIds?.has(item.id)}
+          note={notes?.get(item.id)}
+          showHeart={item.owner_id !== myId}
+        />
       ))}
     </div>
   );

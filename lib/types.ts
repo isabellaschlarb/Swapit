@@ -12,6 +12,15 @@ export type Profile = {
   avatar_url: string | null;
   bio: string | null;
   style_tags: string[];
+  preferred_meetup_spot_id: string | null; // shown on item cards instead of distance
+  created_at: string;
+};
+
+export type Message = {
+  id: string;
+  swap_request_id: string;
+  sender_id: string;
+  body: string;
   created_at: string;
 };
 
@@ -24,6 +33,7 @@ export type Item = {
   category: string | null;
   size: string | null;
   condition: string | null;
+  color: string | null; // e.g. "navy" (often filled by AI snap-to-list)
   estimated_value_cents: number;
   style_tags: string[];
   photo_urls: string[];
@@ -47,5 +57,8 @@ export type SwapRequest = {
   status: SwapStatus;
   meetup_spot_id: string | null;
   meetup_time: string | null;
+  // Friendly note the database adds when it closes a request automatically
+  // (e.g. the item went to another swap). Null otherwise.
+  closed_note: string | null;
   created_at: string;
 };

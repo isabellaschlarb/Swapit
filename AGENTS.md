@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Swapit project rules
 
 - Read `HANDOFF.md` first. Keep code simple and readable; teammates are not technical.
-- Database changes go in a NEW numbered file in `supabase/migrations/` (e.g. `0004_...sql`). Never edit a migration that has already been run (0001–0003 are live).
+- Database changes go in a NEW numbered file in `supabase/migrations/` (e.g. `0004_...sql`). Never edit a migration that has already been run (0001–0004, 0007 and 0008 are live).
 - Security rules live in the database (RLS + triggers). Don't weaken them to make app code work; never use the Supabase service_role / secret key in the app.
 - Secrets (AI API keys etc.) go in `.env.local` only, with names that do NOT start with `NEXT_PUBLIC_`, and are used only in server code. Never commit `.env.local`.
 - Money is stored in cents (`2000` = $20). Use helpers in `lib/format.ts`.

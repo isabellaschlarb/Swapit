@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
+import { UserName } from "@/components/UserName";
 import { formatCents, formatMeetupTime } from "@/lib/format";
 import { createClient, getMyProfile } from "@/lib/supabase/server";
 import type { Item, SwapRequest } from "@/lib/types";
@@ -137,8 +138,8 @@ function SwapCard({
         </Link>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{swap.item?.title ?? "Item removed"}</p>
-          <p className="text-sm text-ink/60">
-            {isOwner ? `From ${otherName}` : `To ${otherName}`}
+          <p className="flex items-center gap-1 text-sm text-ink/60">
+            {isOwner ? "From" : "To"} <UserName name={otherName} badgeSize={12} />
           </p>
         </div>
         <span
@@ -176,11 +177,21 @@ function SwapCard({
         </p>
       )}
 
+      {/* Only the requester sees the note (the owner already knows why) */}
+      {!isOwner && swap.closed_note && <p className="rounded-2xl bg-pale px-3 py-2 text-sm">{swap.closed_note}</p>}
+
       {itemOnHoldElsewhere && (
         <p className="text-sm text-ink/60">This item is on hold in another swap right now.</p>
       )}
 
       <SwapActions swapId={swap.id} actions={actions} />
+
+      <Link
+        href={`/messages/${swap.id}`}
+        className="block rounded-full border border-navy/20 py-2 text-center text-sm font-semibold text-navy hover:bg-pale"
+      >
+        Message {otherName}
+      </Link>
     </li>
   );
 }

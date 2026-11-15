@@ -7,7 +7,7 @@ import { AppIcon } from "@/components/Logo";
 // for new and returning students.
 export default function Welcome() {
   return (
-    <main className="relative flex flex-1 flex-col px-6 pb-8 pt-16">
+    <main className="relative flex flex-1 flex-col px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-16">
       <Blobs />
 
       <div className="relative flex flex-1 flex-col items-center justify-center gap-5 text-center">

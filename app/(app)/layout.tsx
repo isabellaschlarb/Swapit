@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-dvh w-full min-w-0">
       <TabBar />
-      <div className="min-w-0 flex-1 break-words pb-28 lg:pb-10">{children}</div>
+      <div className="min-w-0 flex-1 break-words pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10">{children}</div>
     </div>
   );
 }

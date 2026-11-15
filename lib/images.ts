@@ -24,3 +24,14 @@ export async function shrinkImage(file: File, maxSide = 1600, quality = 0.85): P
 export function randomFileName(extension = "jpg") {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
 }
+
+// Turns a photo into a "data:image/jpeg;base64,..." string so it can be
+// sent to our AI route as JSON.
+export function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}

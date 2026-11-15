@@ -9,19 +9,22 @@ const ICONS = {
   home: "M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z",
   explore: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4",
   swaps: "M7 7h11l-3-3M17 17H6l3 3",
+  messages: "M5 18.5V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H8.5z",
   profile: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20c1.4-3.3 4.3-5 7.5-5s6.1 1.7 7.5 5",
   plus: "M12 6v12M6 12h12",
 };
 
+// Phone bottom bar (like the brand board): Home · Swaps · (+) · Messages · Profile.
+// Explore opens from the search icon on the feed (and is in the desktop sidebar).
 const LEFT = [
   { href: "/feed", label: "Home", icon: ICONS.home },
-  { href: "/explore", label: "Explore", icon: ICONS.explore },
+  { href: "/swaps", label: "Swaps", icon: ICONS.swaps },
 ];
 const RIGHT = [
-  // "Swaps" stays here until chat exists (then it can become "Messages").
-  { href: "/swaps", label: "Swaps", icon: ICONS.swaps },
+  { href: "/messages", label: "Messages", icon: ICONS.messages },
   { href: "/profile", label: "Profile", icon: ICONS.profile },
 ];
+const EXPLORE = { href: "/explore", label: "Explore", icon: ICONS.explore };
 
 // Mobile-style bottom navigation with a raised + (Post) button in the middle.
 // The current tab is navy; the others are faded.
@@ -34,7 +37,7 @@ export function TabBar() {
       <Link href="/feed" aria-label="Swapit home" className="px-3"><Logo /></Link>
       <nav aria-label="Main navigation" className="mt-10">
         <ul className="space-y-2">
-          {[...LEFT, { href: "/post", label: "Post an item", icon: ICONS.plus }, ...RIGHT].map((tab) => {
+          {[LEFT[0], EXPLORE, LEFT[1], { href: "/post", label: "Post an item", icon: ICONS.plus }, ...RIGHT].map((tab) => {
             const active = pathname.startsWith(tab.href);
             return (
               <li key={tab.href}>

@@ -62,7 +62,7 @@ Supabase is our backend: it stores users, items, and photos.
    `.env.local` is never uploaded to GitHub. Don't paste these keys into chats or docs.
 
 ### 6. Run it
-To enable optional AI style-tag suggestions, add `OPENAI_API_KEY` to your private `.env.local` file. Keep the key secret and do not use a `NEXT_PUBLIC_` prefix. Without it, you can still choose tags and post items normally.
+To enable AI snap-to-list (a photo fills in the Post form), add `OPENAI_API_KEY` to your private `.env.local` file. Keep the key secret and do not use a `NEXT_PUBLIC_` prefix. Without it, the form says it couldn't auto-fill and you can still post items normally.
 
 In a terminal, inside the project folder:
 ```
@@ -85,7 +85,7 @@ Open http://localhost:3000. To see it like a phone, press F12 in Chrome and clic
 
 Every push to GitHub now redeploys automatically.
 
-To enable AI style suggestions on Vercel, add `OPENAI_API_KEY` under the project's Settings → Environment Variables for the desired environments, then redeploy. Never put the key in source code or share it in chat.
+To enable AI snap-to-list on Vercel, add `OPENAI_API_KEY` under the project's Settings → Environment Variables for the desired environments, then redeploy. Never put the key in source code or share it in chat.
 
 ---
 
@@ -136,6 +136,17 @@ To check the rules still work after a change, run:
 npx supabase db query --remote --yes -f supabase/tests/swap_rules_test.sql -o table
 ```
 It tests about 50 cases as fake users and then **undoes everything**, so it's safe to run on the real database. Every line should say PASS.
+
+### Install as an app (PWA)
+Swapit can be added to a phone's home screen and opens full-screen like a normal app.
+- **iPhone (Safari):** tap Share → **Add to Home Screen**.
+- **Android (Chrome):** tap **Install** on the banner at the top of the feed (or Chrome menu → *Add to Home screen*).
+
+How it's built: `app/manifest.ts` (name, colors, start page), icons in `public/icons/` and `app/apple-icon.png`, and iPhone settings in `app/layout.tsx`. If the logo changes, rebuild every icon from `app/icon.svg` with:
+```
+node scripts/generate-icons.mjs
+```
+Installing only works over **https** (or on `localhost`), so test it on the Vercel link, not your computer's network address. There's no offline mode or push notifications yet.
 
 ### Design (brand board: `design/design.webp`)
 Use these Tailwind classes instead of picking colors (defined in `app/globals.css`):

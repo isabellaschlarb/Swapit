@@ -41,3 +41,14 @@ export function formatMeetupTime(iso: string, timeZone: string) {
   const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone });
   return `${day} · ${time}`;
 }
+
+// Chat timestamps in the campus timezone: "3:04 PM" if today, else "Nov 12".
+// (Always pass the timezone so the server and the phone show the same thing.)
+export function formatChatTime(iso: string, timeZone: string, now = new Date()) {
+  const date = new Date(iso);
+  const day = (d: Date) => d.toLocaleDateString("en-US", { timeZone });
+  if (day(date) === day(now)) {
+    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone });
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone });
+}
