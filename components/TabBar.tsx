@@ -7,16 +7,13 @@ import { Logo } from "@/components/Logo";
 // Thin outline icons (SVG paths, 24×24).
 const ICONS = {
   home: "M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z",
-  explore: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4",
   swaps: "M7 7h11l-3-3M17 17H6l3 3",
   profile: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20c1.4-3.3 4.3-5 7.5-5s6.1 1.7 7.5 5",
   plus: "M12 6v12M6 12h12",
 };
 
-const LEFT = [
-  { href: "/feed", label: "Home", icon: ICONS.home },
-  { href: "/explore", label: "Explore", icon: ICONS.explore },
-];
+// Explore is hidden until search exists (the page is still at /explore).
+const LEFT = [{ href: "/feed", label: "Home", icon: ICONS.home }];
 const RIGHT = [
   // "Swaps" stays here until chat exists (then it can become "Messages").
   { href: "/swaps", label: "Swaps", icon: ICONS.swaps },
@@ -48,7 +45,7 @@ export function TabBar() {
       </nav>
     </aside>
     <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-10 lg:hidden bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_0_rgb(13_27_61/0.06)] backdrop-blur">
-      <ul className="mx-auto grid max-w-md grid-cols-5 items-end">
+      <ul className="mx-auto grid max-w-md grid-cols-4 items-end">
         {LEFT.map((tab) => (
           <Tab key={tab.href} {...tab} active={pathname.startsWith(tab.href)} />
         ))}
