@@ -24,6 +24,7 @@ export type Item = {
   category: string | null;
   size: string | null;
   condition: string | null;
+  color: string | null; // e.g. "navy" (often filled by AI snap-to-list)
   estimated_value_cents: number;
   style_tags: string[];
   photo_urls: string[];
