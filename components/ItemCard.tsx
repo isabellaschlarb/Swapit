@@ -21,7 +21,7 @@ export function ItemCard({ item, owner }: { item: Item; owner?: ItemOwner | null
               src={photo}
               alt={item.title}
               fill
-              sizes="(max-width: 448px) 50vw, 224px"
+              sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1535px) 25vw, 20vw"
               className="object-cover"
             />
           )}
@@ -64,7 +64,7 @@ export function ItemGrid({
     return <p className="rounded-2xl bg-surface p-6 text-center text-ink/60 shadow-soft">{emptyText}</p>;
   }
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-5">
       {items.map((item) => (
         <ItemCard key={item.id} item={item} owner={item.owner} />
       ))}

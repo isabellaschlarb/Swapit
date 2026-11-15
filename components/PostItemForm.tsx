@@ -30,6 +30,10 @@ export function PostItemForm({ userId }: { userId: string }) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(null);
   const [listingType, setListingType] = useState<ListingType>("swap");
   const canSell = listingType !== "swap";
 
@@ -44,6 +48,41 @@ export function PostItemForm({ userId }: { userId: string }) {
   function removePhoto(index: number) {
     URL.revokeObjectURL(photos[index].preview);
     setPhotos(photos.filter((_, i) => i !== index));
+  }
+
+  async function suggestTags(formElement: HTMLFormElement | null) {
+    if (!formElement) return;
+    const form = new FormData(formElement);
+    const title = String(form.get("title") ?? "").trim();
+    if (!title) {
+      setSuggestionMessage("Add a title first to get suggestions.");
+      return;
+    }
+    setSuggesting(true);
+    setSuggestionMessage(null);
+    setSuggestions([]);
+    try {
+      const response = await fetch("/api/style-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description: form.get("description"),
+          category: form.get("category"),
+          size: form.get("size"),
+          condition: form.get("condition"),
+          selectedTags: tags,
+        }),
+      });
+      if (!response.ok) throw new Error();
+      const data: { tags: string[] } = await response.json();
+      setSuggestions(data.tags);
+      if (data.tags.length === 0) setSuggestionMessage("No new suggestions this time. You can still pick tags below.");
+    } catch {
+      setSuggestionMessage("Suggestions are unavailable right now. You can still choose tags and post your item.");
+    } finally {
+      setSuggesting(false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -223,7 +262,21 @@ export function PostItemForm({ userId }: { userId: string }) {
 
       <div className="space-y-3">
         <p className="text-sm text-ink/70">Style tags</p>
-        <StyleTagPicker />
+        <button type="button" onClick={(event) => suggestTags(event.currentTarget.form)} disabled={suggesting} className="rounded-full border border-primary px-4 py-2 text-sm text-primary disabled:opacity-60">
+          {suggesting ? "Finding suggestions…" : "Suggest style tags"}
+        </button>
+        <p className="text-sm text-ink/70" role="status">{suggesting ? "Finding style tags…" : suggestionMessage}</p>
+        {suggestions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm text-ink/70">Tap a suggestion to add it:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.filter((tag) => !tags.includes(tag)).map((tag) => (
+                <button key={tag} type="button" onClick={() => { setTags([...tags, tag]); setSuggestions(suggestions.filter((item) => item !== tag)); }} className="rounded-full border border-primary px-4 py-2 text-sm text-primary">+ {tag}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        <StyleTagPicker selected={tags} onChange={setTags} />
       </div>
 
       {error && <p className="rounded-2xl bg-pale p-4 text-sm">{error}</p>}

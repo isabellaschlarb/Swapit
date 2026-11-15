@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages anyone can visit without signing in. Everything else needs a login.
-const PUBLIC_PATHS = ["/", "/login", "/auth/callback"];
+const PUBLIC_PATHS = ["/", "/login", "/auth/confirm", "/auth/callback"];
 
 // Runs before every page load (called from /proxy.ts):
 //  1. keeps the user's login session fresh (refreshes cookies), and

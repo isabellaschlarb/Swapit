@@ -43,10 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${jakarta.variable} h-full antialiased`}>
       <body className="min-h-full bg-cloud font-sans text-ink">
-        {/* Phone-width column, centered on bigger screens */}
-        <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col pt-[env(safe-area-inset-top)]">
-          {children}
-        </div>
+        <div className="flex min-h-dvh w-full min-w-0 flex-col pt-[env(safe-area-inset-top)]">{children}</div>
       </body>
     </html>
   );

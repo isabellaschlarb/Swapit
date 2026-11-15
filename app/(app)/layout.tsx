@@ -12,10 +12,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   if (!profile.display_name) redirect("/onboarding");
 
   return (
-    <>
-      {/* Bottom padding so content never hides behind the tab bar (+ the iPhone home bar) */}
-      <div className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom))]">{children}</div>
+    <div className="flex min-h-dvh w-full min-w-0">
       <TabBar />
-    </>
+      <div className="min-w-0 flex-1 break-words pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10">{children}</div>
+    </div>
   );
 }

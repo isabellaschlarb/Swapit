@@ -26,16 +26,16 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
   const canBuy = item.listing_type !== "swap";
 
   return (
-    <main className="space-y-6">
+    <main className="mx-auto w-full max-w-6xl space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0 lg:p-10">
       {/* Photos: swipe sideways if there's more than one */}
-      <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto">
+      <div className="flex min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto lg:rounded-2xl">
         {item.photo_urls.map((url, i) => (
           <div key={url} className="relative aspect-[4/5] w-full shrink-0 snap-center bg-pale">
             <Image
               src={url}
               alt={`${item.title} photo ${i + 1}`}
               fill
-              sizes="(max-width: 448px) 100vw, 448px"
+              sizes="(max-width: 1023px) 100vw, 45vw"
               className="object-cover"
               priority={i === 0}
             />
@@ -43,7 +43,7 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
         ))}
       </div>
 
-      <section className="space-y-4 px-5">
+      <section className="min-w-0 space-y-4 break-words px-5 lg:px-0 lg:pt-2">
         <div className="space-y-1">
           <h1 className="text-2xl font-extrabold tracking-tight text-navy">{item.title}</h1>
           <p className="text-lg font-bold text-navy">{listingLabel(item)}</p>

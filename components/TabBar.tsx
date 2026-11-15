@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/Logo";
 
 // Thin outline icons (SVG paths, 24×24).
 const ICONS = {
@@ -28,7 +29,25 @@ export function TabBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_0_rgb(13_27_61/0.06)] backdrop-blur">
+    <>
+    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-navy/10 bg-surface px-5 py-8 lg:flex">
+      <Link href="/feed" aria-label="Swapit home" className="px-3"><Logo /></Link>
+      <nav aria-label="Main navigation" className="mt-10">
+        <ul className="space-y-2">
+          {[...LEFT, { href: "/post", label: "Post an item", icon: ICONS.plus }, ...RIGHT].map((tab) => {
+            const active = pathname.startsWith(tab.href);
+            return (
+              <li key={tab.href}>
+                <Link href={tab.href} aria-current={active ? "page" : undefined} className={`flex items-center gap-3 rounded-2xl px-4 py-3 font-semibold ${active ? "bg-pale text-navy" : "text-navy/60 hover:bg-cloud"}`}>
+                  <Icon path={tab.icon} className="h-6 w-6" />{tab.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </aside>
+    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-10 lg:hidden bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_0_rgb(13_27_61/0.06)] backdrop-blur">
       <ul className="mx-auto grid max-w-md grid-cols-5 items-end">
         {LEFT.map((tab) => (
           <Tab key={tab.href} {...tab} active={pathname.startsWith(tab.href)} />
@@ -38,6 +57,7 @@ export function TabBar() {
           <Link
             href="/post"
             aria-label="Post an item"
+            aria-current={pathname.startsWith("/post") ? "page" : undefined}
             className={`-mt-5 mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-sky text-navy shadow-lift ${
               pathname.startsWith("/post") ? "ring-4 ring-pale" : ""
             }`}
@@ -51,6 +71,7 @@ export function TabBar() {
         ))}
       </ul>
     </nav>
+    </>
   );
 }
 

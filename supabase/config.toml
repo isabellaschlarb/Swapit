@@ -158,11 +158,16 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:3000"
+site_url = "https://swapit-psi-six.vercel.app"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3000/**"]
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000/**",
+  "https://swapit-*.vercel.app/**",
+  "https://swapit-psi-six.vercel.app/**",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -198,7 +203,7 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+email_sent = 100
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -235,34 +240,36 @@ secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1m0s"
 # Number of characters used in the email OTP.
-otp_length = 8
+otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# Send sign-in emails from our Gmail account instead of Supabase's built-in
+# sender (which only allows ~2 emails per hour).
+# The password is a Gmail "App Password". It is NOT in this file: it's read from
+# SUPABASE_AUTH_SMTP_PASS in supabase/.env, which is gitignored. Never commit it.
+[auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 587
+user = "swapit.app.team@gmail.com"
+pass = "env(SUPABASE_AUTH_SMTP_PASS)"
+admin_email = "swapit.app.team@gmail.com"
+sender_name = "Swapit"
 
-# Swapit sign-in emails. Links go to /auth/callback with a token_hash so they work
-# even when opened in a different browser/app (e.g. the Gmail app on a phone).
-#
-# TURNED OFF FOR NOW: Supabase's free plan blocks custom email templates unless
-# a custom SMTP email sender is set up (error "entitlement_required"). Once SMTP
-# is configured (e.g. Resend), uncomment these 7 lines and run
-# `npx supabase config push`.
-# [auth.email.template.magic_link]
-# subject = "Your Swapit sign-in link"
-# content_path = "./supabase/templates/magic_link.html"
-#
-# [auth.email.template.confirmation]
-# subject = "Confirm your Swapit email"
-# content_path = "./supabase/templates/confirmation.html"
+# Our own sign-in emails (they need the custom SMTP sender above; the free plan
+# blocks custom templates without it). The main thing in the email is a 6-digit
+# code ({{ .Token }}) that students type into the login page. That way it works
+# inside the iPhone home-screen app, which doesn't share logins with Safari.
+# There's also a backup link to /auth/confirm, which waits for a button tap so
+# school email virus scanners can't use it up.
+[auth.email.template.magic_link]
+subject = "Your Swapit code: {{ .Token }}"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Your Swapit code: {{ .Token }}"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

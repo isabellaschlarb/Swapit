@@ -37,7 +37,7 @@ export default async function RequestPage({ params, searchParams }: PageProps<"/
   ]);
 
   return (
-    <main className="space-y-6 px-5 pt-6">
+    <main className="mx-auto w-full max-w-3xl space-y-6 px-5 pt-6 lg:pt-10">
       <Link href={`/item/${id}`} className="text-sm text-navy">
         ← Back
       </Link>

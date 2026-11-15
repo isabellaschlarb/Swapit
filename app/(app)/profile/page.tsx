@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   const initial = (profile.display_name ?? "?").charAt(0).toUpperCase();
 
   return (
-    <main className="space-y-8 px-5 pt-8">
+    <main className="mx-auto w-full max-w-screen-2xl space-y-8 break-words px-5 pt-8 lg:px-10 lg:pt-12">
       <section className="flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-pale text-2xl font-extrabold text-navy">
           {initial}
@@ -48,7 +48,7 @@ export default async function ProfilePage() {
       </section>
 
       <form action={signOut}>
-        <button type="submit" className="w-full rounded-full px-6 py-3 text-sm text-ink/60">
+        <button type="submit" className="w-full rounded-full px-6 py-3 text-sm text-ink/60 sm:w-auto">
           Sign out
         </button>
       </form>

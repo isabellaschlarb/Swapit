@@ -10,7 +10,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     <main className="relative flex flex-1 flex-col px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-16">
       <Blobs />
 
-      <div className="relative flex flex-1 flex-col justify-center gap-8">
+      <div className="relative mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <Link href="/" aria-label="Back to welcome">
             <AppIcon size={72} className="rounded-[18px] shadow-lift" />
@@ -18,15 +18,15 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           <div className="space-y-2">
             <h1 className="text-3xl font-extrabold tracking-tight text-navy">Sign in</h1>
             <p className="text-ink/70">
-              Use your school email. We&apos;ll send you a link, no password needed.
+              Use your school email. We&apos;ll email you a 6-digit code, no password needed.
             </p>
           </div>
         </div>
 
         {error && (
           <p className="rounded-2xl bg-pale p-4 text-sm">
-            That sign-in link didn&apos;t work (links expire after a while, and only work in the
-            browser you requested them from). Request a new one below.
+            That sign-in link didn&apos;t work. Each link works once and expires after an hour.
+            Ask for a new code below.
           </p>
         )}
 

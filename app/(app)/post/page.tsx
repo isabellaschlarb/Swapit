@@ -8,7 +8,7 @@ export default async function PostPage() {
   if (!user) redirect("/login");
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-3xl lg:pt-4">
       <PageHeader title="Post an item" subtitle="Snap a few photos and list it for a swap." />
       <section className="px-5">
         <PostItemForm userId={user.id} />
