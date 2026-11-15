@@ -36,7 +36,7 @@ export function FeedHeader({ active }: { active: FeedTab }) {
         </button>
       </div>
 
-      <nav className="flex gap-2">
+      <nav aria-label="Feed categories" className="flex flex-wrap gap-2">
         {FEED_TABS.map((tab) => (
           <Link
             key={tab.key}

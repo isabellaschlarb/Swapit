@@ -20,7 +20,7 @@ export default function Welcome() {
         </p>
       </div>
 
-      <div className="relative space-y-3 pt-10">
+      <div className="relative mx-auto w-full max-w-md space-y-3 pt-10">
         <Link
           href="/login"
           className="block rounded-full bg-navy px-6 py-3.5 text-center font-semibold text-white"
@@ -35,7 +35,7 @@ export default function Welcome() {
         </Link>
       </div>
 
-      <ul className="relative mt-8 grid grid-cols-3 divide-x divide-ink/10 text-center text-xs text-ink/70">
+      <ul className="relative mx-auto mt-8 grid w-full max-w-md grid-cols-3 divide-x divide-ink/10 text-center text-xs text-ink/70">
         <Badge label="Student Verified" icon="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3zM9 12l2 2 4-4" />
         <Badge label="Safe" icon="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6zM12 15v2" />
         <Badge label="Local" icon="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />

@@ -12,10 +12,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   if (!profile.display_name) redirect("/onboarding");
 
   return (
-    <>
-      {/* Bottom padding so content never hides behind the tab bar */}
-      <div className="flex-1 pb-28">{children}</div>
+    <div className="flex min-h-dvh w-full min-w-0">
       <TabBar />
-    </>
+      <div className="min-w-0 flex-1 break-words pb-28 lg:pb-10">{children}</div>
+    </div>
   );
 }

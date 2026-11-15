@@ -15,7 +15,7 @@ export default async function FeedPage({ searchParams }: PageProps<"/feed">) {
 
   if (active !== "for-you") {
     return (
-      <main>
+      <main className="mx-auto w-full max-w-screen-2xl lg:px-5 lg:pt-4">
         <FeedHeader active={active} />
         <section className="px-5">
           <div className="space-y-2 rounded-2xl bg-surface p-8 text-center shadow-soft">
@@ -40,7 +40,7 @@ export default async function FeedPage({ searchParams }: PageProps<"/feed">) {
     .limit(60);
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-screen-2xl lg:px-5 lg:pt-4">
       <FeedHeader active={active} />
       <section className="px-5">
         <ItemGrid

@@ -10,7 +10,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     <main className="relative flex flex-1 flex-col px-6 pb-10 pt-16">
       <Blobs />
 
-      <div className="relative flex flex-1 flex-col justify-center gap-8">
+      <div className="relative mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <Link href="/" aria-label="Back to welcome">
             <AppIcon size={72} className="rounded-[18px] shadow-lift" />

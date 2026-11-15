@@ -49,11 +49,11 @@ export default async function SwapsPage({ searchParams }: PageProps<"/swaps">) {
   const waiting = incoming.filter((s) => s.status === "pending").length;
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-4xl lg:pt-4">
       <PageHeader title="Swaps" />
 
       {/* Tabs */}
-      <nav className="mx-5 mb-5 grid grid-cols-2 rounded-full bg-surface p-1 text-sm">
+      <nav aria-label="Swap requests" className="mx-5 mb-5 grid grid-cols-2 rounded-full bg-surface p-1 text-sm">
         <Link
           href="/swaps"
           className={`rounded-full py-2 text-center ${!showSent ? "bg-navy text-white" : "text-ink/60"}`}
