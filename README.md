@@ -137,6 +137,17 @@ npx supabase db query --remote --yes -f supabase/tests/swap_rules_test.sql -o ta
 ```
 It tests about 50 cases as fake users and then **undoes everything**, so it's safe to run on the real database. Every line should say PASS.
 
+### Install as an app (PWA)
+Swapit can be added to a phone's home screen and opens full-screen like a normal app.
+- **iPhone (Safari):** tap Share → **Add to Home Screen**.
+- **Android (Chrome):** tap **Install** on the banner at the top of the feed (or Chrome menu → *Add to Home screen*).
+
+How it's built: `app/manifest.ts` (name, colors, start page), icons in `public/icons/` and `app/apple-icon.png`, and iPhone settings in `app/layout.tsx`. If the logo changes, rebuild every icon from `app/icon.svg` with:
+```
+node scripts/generate-icons.mjs
+```
+Installing only works over **https** (or on `localhost`), so test it on the Vercel link, not your computer's network address. There's no offline mode or push notifications yet.
+
 ### Design (brand board: `design/design.webp`)
 Use these Tailwind classes instead of picking colors (defined in `app/globals.css`):
 

@@ -32,6 +32,19 @@ body {
   color: var(--color-ink);
 }
 
+/* Feel like an app, not a website:
+   - no double-tap-to-zoom delay on buttons and links
+   - iPhones zoom into any text field smaller than 16px, so keep them at 16px+ */
+html {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+input,
+select,
+textarea {
+  font-size: max(16px, 1em);
+}
+
 /* Dropdowns: use the brand font and a thin navy arrow instead of the
    browser's default look, so they match the text inputs. */
 select {
