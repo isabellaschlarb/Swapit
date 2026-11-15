@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HeartButton } from "@/components/HeartButton";
+import { UserName } from "@/components/UserName";
 import { formatCents, listingLabel } from "@/lib/format";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import type { Item } from "@/lib/types";
@@ -14,13 +16,15 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
   // RLS hides it and we show "not found".
   const { data } = await supabase
     .from("items")
-    .select("*, owner:profiles(display_name)")
+    .select("*, owner:profiles!items_owner_id_fkey(id, display_name)")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
 
-  const { owner, ...item } = data as Item & { owner: { display_name: string | null } | null };
+  const { owner, ...item } = data as Item & { owner: { id: string; display_name: string | null } | null };
   const isMine = item.owner_id === user?.id;
+  // Did I heart it? (RLS only returns my own likes.)
+  const { data: myLike } = await supabase.from("likes").select("item_id").eq("item_id", id).maybeSingle();
   const details = [item.category, item.size, item.color, item.condition].filter(Boolean);
   const canSwap = item.listing_type !== "sell";
   const canBuy = item.listing_type !== "swap";
@@ -45,14 +49,24 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
 
       <section className="min-w-0 space-y-4 break-words px-5 lg:px-0 lg:pt-2">
         <div className="space-y-1">
-          <h1 className="text-2xl font-extrabold tracking-tight text-navy">{item.title}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-extrabold tracking-tight text-navy">{item.title}</h1>
+            {!isMine && <HeartButton itemId={item.id} initialLiked={Boolean(myLike)} className="shrink-0" />}
+          </div>
           <p className="text-lg font-bold text-navy">{listingLabel(item)}</p>
           <p className="text-ink/60">
             {formatCents(item.estimated_value_cents)} est. value
             {details.length > 0 && ` · ${details.join(" · ")}`}
           </p>
-          <p className="text-sm text-ink/60">
-            Posted by {isMine ? "you" : (owner?.display_name ?? "a student")}
+          <p className="flex items-center gap-1 text-sm text-ink/60">
+            Posted by{" "}
+            {isMine ? (
+              "you"
+            ) : (
+              <Link href={`/people/${item.owner_id}`} className="font-semibold text-navy">
+                <UserName name={owner?.display_name ?? null} />
+              </Link>
+            )}
           </p>
         </div>
 

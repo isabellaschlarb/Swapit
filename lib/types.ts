@@ -12,6 +12,15 @@ export type Profile = {
   avatar_url: string | null;
   bio: string | null;
   style_tags: string[];
+  preferred_meetup_spot_id: string | null; // shown on item cards instead of distance
+  created_at: string;
+};
+
+export type Message = {
+  id: string;
+  swap_request_id: string;
+  sender_id: string;
+  body: string;
   created_at: string;
 };
 

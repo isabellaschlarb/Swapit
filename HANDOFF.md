@@ -10,26 +10,29 @@ Jasper built the base app. Your job is the smart stuff (style matching, auto-tag
 **Working:**
 - **Sign in with a school email.** We email you a 6-digit code to type in, no passwords. Only `@calpoly.edu` (and other schools we add) can get in.
 - **Onboarding.** New users pick a display name and a few style tags (vintage, streetwear, y2k…).
-- **Feed.** Items from *your school only*, newest first.
-- **Post an item.** Up to 4 photos, title, category, size, condition, estimated value, style tags. You also choose *swap only*, *sell only*, or *swap or sell* (with an asking price).
-- **Item page.** Photos and details, plus **Request swap** and/or **Buy for $X** buttons.
-- **Swap / buy requests.** Offer your own items (plus optional cash) or just cash, and pick a campus meetup spot and time.
-- **Swaps page.** Incoming and Sent tabs. Accept, Decline, Cancel, and Mark complete.
-- **Profile.** Your name, style tags, your items, and sign out.
+- **Feed** (`app/(app)/feed`), three tabs like the brand board:
+  - **For You:** ranked by style-tag overlap with your profile + liked items, plus newness (`lib/for-you.ts`). Top matches get "✨ Matches your style".
+  - **Following:** items from people you follow.
+  - **Trending:** most-liked items at your school in the last 7 days (`trending_items()` in the database).
+  - **Filters** (icon top right): category, size, price range, swap/buy. Stored in the URL (`lib/filters.ts`); they also work on Explore.
+- **Item cards:** photo + heart, title, "Size M · Swap or $35", owner avatar + name + verified shield, and the owner's usual meetup spot (we don't track distance).
+- **Explore** (`/explore`, search icon on the feed): search title/description/style tags, category chips, filters, and **Style twins**.
+- **Style twins / Meet new people:** students at your school with the most similar style (profile tags + likes), with a match % and Follow. On Explore and your Profile (`style_twins()` in the database).
+- **Post an item.** Up to 4 photos, title, category, size, condition, color, estimated value, style tags, and swap/sell/both. **Snap-to-list:** the first photo goes to `app/api/snap-to-list/route.ts` (OpenAI vision, server only, `OPENAI_API_KEY`) and fills in empty fields marked "✨ Filled by AI". If AI fails, posting still works.
+- **Item page.** Photos, details, heart, owner (links to their profile), **Request swap** / **Buy for $X**.
+- **Swap / buy requests.** Offer your own items (plus optional cash) or just cash, and pick a campus meetup spot and time. **Fair-swap helper** suggests which of your items balance the value and pre-fills the cash difference (`lib/fair-swap.ts`).
+- **Swaps page.** Incoming and Sent tabs. Accept, Decline, Cancel, Mark complete, and **Message**. Accepting auto-declines other open requests for those items with a friendly note.
+- **Messages** (`/messages`): one chat per swap/buy request. Avatar, item thumbnail, last message, unread dot. Live updates with Supabase Realtime. Only the two people in the swap can read/write.
+- **Profiles:** `/people/<id>` shows anyone at your school (avatar, verified shield, style tags, swaps / followers / following, their closet, Follow). `/profile` is yours, with **Edit** (`/profile/edit`): photo upload, name, bio, style, preferred meetup spot.
+- **Verified student shield** next to every name (`components/UserName.tsx`). Everyone signed in with a school email.
 - **Security.** The database itself makes sure people only see their own school and can only change their own stuff.
 
-**Stubbed or not built yet:**
-- No chat between swappers yet (the `messages` table exists, but there's no screen).
-- No editing or deleting items, no profile editing, no profile photos.
+**Not built:**
+- No editing or deleting items yet.
 - Payments are in person only (cash or Venmo). No Stripe.
-- **AI / smart features** (branch `ai-core`):
-  - **Snap-to-list:** adding the first photo on /post sends a small copy to `app/api/snap-to-list/route.ts` (OpenAI vision, server only, `OPENAI_API_KEY`). It fills in empty fields, marked "✨ Filled by AI". If AI fails, posting still works.
-  - **Likes:** the heart saves to the `likes` table (`0007_likes_and_color.sql`). Liked items show on your Profile.
-  - **For You feed:** ranked by style-tag overlap with your profile + liked items, plus newness (`lib/for-you.ts`, no AI call). Top matches get "✨ Matches your style".
-  - **Fair-swap helper:** on Request swap, suggests the combo of your items closest in value and pre-fills the cash difference (`lib/fair-swap.ts`, no AI call).
 
 **Things to know:**
-- The swap/buy screens were built and checked automatically (the database rules pass all 49 tests), but nobody has clicked through them with two real accounts yet. Please try it with a teammate and tell Jasper if anything looks off.
+- The swap/buy screens were built and checked automatically (the database rules pass all tests in `supabase/tests/`), but nobody has clicked through them with two real accounts yet. Please try it with a teammate and tell Jasper if anything looks off.
 - Supabase's free email only sends about **2 sign-in emails per hour**. If sign-in emails stop arriving, that's why. Wait, or ask Jasper about setting up Resend.
 - **Sign in with the 6-digit code** from the email (works in the iPhone home-screen app too). The email's backup link opens `/auth/confirm`, where you tap **Tap to sign in** (on purpose, so school email scanners can't use up the link). Emails come from `swapit.app.team@gmail.com`, up to 100 per hour.
 - Nicer sign-in emails that work in any browser are ready in `supabase/templates/`, but Supabase's free plan only allows them once custom email (SMTP, e.g. Resend) is set up. The README explains how. Ask Jasper before running `npx supabase config push`.
@@ -75,9 +78,10 @@ We use **Supabase** (a hosted Postgres database). The *shape* of the database (t
 | `0003_swap_flow.sql` | Listing types, prices, and the swap/buy rules |
 | `0004_auto_decline_on_accept.sql` | When a swap is accepted, other open requests for those items close automatically with a friendly note |
 | `0007_likes_and_color.sql` | The `likes` table (hearts) and an item `color` column |
+| `0008_social.sql` | Follows, chat unread tracking + Realtime, preferred meetup spot, avatars bucket, trending / style twins / profile stats |
 
 **The golden rules:**
-1. **Never edit a migration file that has already been run.** All three above have already run on the live database. Editing them does nothing to the real database and confuses everyone.
+1. **Never edit a migration file that has already been run.** Everything in the table above has already run on the live database. Editing them does nothing to the real database and confuses everyone.
 2. **Any database change goes in a NEW file** with the next number, e.g. `supabase/migrations/0004_ai_style_scores.sql`.
 3. To apply a new migration to the live database:
    ```
@@ -90,6 +94,7 @@ We use **Supabase** (a hosted Postgres database). The *shape* of the database (t
 4. After changing anything about swaps, check the rules still work:
    ```
    npx supabase db query --remote --yes -f supabase/tests/swap_rules_test.sql -o table
+   npx supabase db query --remote --yes -f supabase/tests/social_rules_test.sql -o table
    ```
    It undoes everything it does, so it's safe. Every line should say PASS.
 
