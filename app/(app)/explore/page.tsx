@@ -1,25 +1,45 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
-import { CATEGORIES } from "@/lib/constants";
+import { ItemGrid } from "@/components/ItemCard";
+import { SearchForm } from "@/components/SearchForm";
+import { PeopleResults } from "@/components/PeopleResults";
+import { createClient } from "@/lib/supabase/server";
+import { searchFilters, searchHref, type SearchFilters } from "@/lib/search";
+import { listingSearch, peopleSearch, type PublicPerson } from "@/lib/search-server";
+import type { Item } from "@/lib/types";
 
-// PLACEHOLDER: search + browse by category is a future feature.
-export default function ExplorePage() {
+type Params = Record<string, string | string[] | undefined>;
+export default async function ExplorePage({ searchParams }: { searchParams: Promise<Params> }) {
+  const params = await searchParams;
+  let filters: SearchFilters = { mode: "listings", q: "", category: "", tag: "" };
+  let listings: Item[] = [], people: PublicPerson[] = [];
+  let next: string | null = null, error = "";
+  try {
+    filters = searchFilters(params);
+    const client = await createClient();
+    if (filters.mode === "listings") {
+      const page = await listingSearch(client, filters, params.cursor);
+      listings = page.results;
+      next = page.next;
+    } else {
+      const page = await peopleSearch(client, filters, params.cursor);
+      people = page.results;
+      next = page.next;
+    }
+  } catch (cause) { error = cause instanceof Error ? cause.message : "Search couldn't load. Please try again."; }
   return (
     <main>
       <PageHeader title="Explore" />
-      <section className="space-y-6 px-5">
-        <div className="flex items-center gap-3 rounded-full bg-surface px-4 py-3 text-ink/40 shadow-soft">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" aria-hidden>
-            <path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4" />
-          </svg>
-          Search is coming soon
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((category) => (
-            <span key={category} className="rounded-full bg-pale px-4 py-2 text-sm text-navy">
-              {category}
-            </span>
-          ))}
-        </div>
+      <section className="space-y-5 px-5 pb-6">
+        <SearchForm key={JSON.stringify(filters)} filters={filters} />
+        {error ? <div role="alert" className="space-y-2 rounded-2xl bg-pale p-4 text-sm"><p>{error}</p><Link href={searchHref(filters)} className="font-semibold text-navy underline">Retry from the first page</Link></div> : <>
+          <h2 className="font-bold text-navy">{filters.mode === "listings" ? "Available listings" : "People at your school"}</h2>
+          {filters.mode === "listings" ? <ItemGrid items={listings} emptyText="No available listings match. Try different words or clear the filters." /> : <PeopleResults people={people} />}
+          <nav aria-label="Search pages" className="flex items-center justify-between gap-3 text-sm text-navy">
+            {params.cursor ? <Link href={searchHref(filters)} className="rounded-full border border-navy px-4 py-3">First page</Link> : <span />}
+            {next ? <Link href={searchHref(filters, next)} className="rounded-full bg-navy px-4 py-3 font-semibold text-white">Next page →</Link> : <span className="text-ink/60">End of results</span>}
+          </nav>
+        </>}
       </section>
     </main>
   );
