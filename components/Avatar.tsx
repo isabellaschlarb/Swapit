@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 
 // A small round profile picture, or the first letter of their name on pale blue.
 export function Avatar({
@@ -10,9 +13,10 @@ export function Avatar({
   url?: string | null;
   size?: number;
 }) {
-  if (url) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  if (url && failedUrl !== url) {
     return (
-      <Image src={url} alt="" width={size} height={size} className="shrink-0 rounded-full object-cover" />
+      <Image src={url} alt="" width={size} height={size} style={{ width: size, height: size }} unoptimized={url.startsWith("/api/avatars/")} onError={() => setFailedUrl(url)} className="shrink-0 rounded-full object-cover" />
     );
   }
   return (

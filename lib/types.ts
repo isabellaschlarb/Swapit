@@ -10,6 +10,7 @@ export type Profile = {
   school_id: string;
   display_name: string | null;
   avatar_url: string | null;
+  avatar_path: string | null;
   bio: string | null;
   style_tags: string[];
   created_at: string;

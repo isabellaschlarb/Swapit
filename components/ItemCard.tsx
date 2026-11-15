@@ -40,10 +40,10 @@ export function ItemCard({ item, owner }: { item: Item; owner?: ItemOwner | null
       </Link>
 
       {owner && (
-        <div className="mt-2 flex items-center gap-1.5 px-1 pb-1 text-xs text-ink/70">
+        <Link href={`/people/${item.owner_id}`} className="mt-2 flex items-center gap-1.5 px-1 pb-1 text-xs text-ink/70">
           <Avatar name={owner.display_name} url={owner.avatar_url} />
           <span className="truncate">{owner.display_name ?? "student"}</span>
-        </div>
+        </Link>
       )}
 
       {/* Outside the link so tapping the heart doesn't open the item */}
